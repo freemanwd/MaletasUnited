@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maletas United 2026 — World Cup Watch Party RSVP</title>
+<style>
+  :root{
+    --green:#0a8a4a;--green-dark:#063;--gold:#ffd23f;--gold-deep:#f5a623;
+    --ink:#0b1220;--white:#ffffff;--red:#e63946;--blue:#1d6fb8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;color:var(--white);background:#04130c;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+  .bg{position:fixed;inset:0;z-index:-3;background:radial-gradient(1200px 600px at 50% -10%, rgba(255,210,63,.25), transparent 60%),linear-gradient(160deg,#0a8a4a 0%,#063 45%,#03251a 100%);}
+  .bg::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 60px, transparent 60px 120px);mix-blend-mode:overlay;animation:scroll 18s linear infinite;}
+  @keyframes scroll{to{background-position:240px 0}}
+  .ball{position:fixed;z-index:-2;font-size:42px;opacity:.18;animation:float linear infinite;user-select:none}
+  @keyframes float{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-20vh) rotate(360deg)}}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px}
+  .hero{text-align:center;padding:34px 14px 10px;position:relative}
+  .crest{display:inline-flex;align-items:center;justify-content:center;width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#e9e9e9 60%,#bdbdbd);box-shadow:0 14px 40px rgba(0,0,0,.45), inset 0 0 0 6px var(--gold);font-size:54px;margin-bottom:16px;animation:spin 9s ease-in-out infinite;}
+  @keyframes spin{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  .kicker{letter-spacing:.32em;text-transform:uppercase;font-size:13px;font-weight:bold;color:var(--gold);margin-bottom:10px}
+  h1{font-size:clamp(38px,9vw,76px);line-height:.95;font-weight:900;text-transform:uppercase;letter-spacing:-1px;background:linear-gradient(180deg,#fff 0%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 4px 24px rgba(0,0,0,.25);margin-bottom:6px;}
+  .sub{font-size:clamp(16px,3.6vw,22px);font-weight:bold;color:#eafff2;opacity:.95}
+  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .badge{background:rgba(0,0,0,.28);border:1.5px solid rgba(255,255,255,.25);padding:9px 15px;border-radius:999px;font-weight:bold;font-size:14px;backdrop-filter:blur(4px);}
+  .badge b{color:var(--gold)}
+  .setupwarn{max-width:760px;margin:18px auto 0;background:#fff3cd;color:#5b4a00;border:2px solid #f0c000;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5}
+  .setupwarn code{background:#fff;border:1px solid #e0c200;border-radius:5px;padding:1px 5px;font-size:13px}
+  .card{background:rgba(255,255,255,.97);color:var(--ink);border-radius:22px;padding:26px 22px;margin-top:26px;box-shadow:0 24px 60px rgba(0,0,0,.4);border:3px solid var(--gold);}
+  .card h2{font-size:24px;margin-bottom:4px;color:var(--green-dark)}
+  .card p.lead{color:#475569;margin-bottom:18px;font-size:15px}
+  label.fld{display:block;font-weight:bold;font-size:14px;margin:18px 0 8px;color:#1f2937;text-transform:uppercase;letter-spacing:.04em}
+  input[type=text]{width:100%;padding:14px 16px;font-size:17px;border:2px solid #d7dee6;border-radius:12px;font-family:inherit;transition:.15s;}
+  input[type=text]:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(10,138,74,.15)}
+  .grid{display:grid;gap:12px}.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:1fr 1fr 1fr}
+  .opt{cursor:pointer;border:2px solid #d7dee6;border-radius:14px;padding:16px 12px;text-align:center;background:#fff;transition:.15s;position:relative;font-weight:bold;}
+  .opt:hover{border-color:var(--green);transform:translateY(-2px)}
+  .opt .big{font-size:26px;display:block;line-height:1}
+  .opt .lbl{display:block;margin-top:6px;font-size:15px;color:#1f2937}
+  .opt .meta{display:block;font-size:12px;color:#6b7280;font-weight:normal;margin-top:2px}
+  .opt input{position:absolute;opacity:0;pointer-events:none}
+  .opt.sel{border-color:var(--green);background:#eafaf1;box-shadow:0 8px 20px rgba(10,138,74,.18)}
+  .opt.sel::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--green);font-weight:900}
+  .opt.no.sel{border-color:var(--red);background:#fdeaec;box-shadow:0 8px 20px rgba(230,57,70,.18)}
+  .opt.no.sel::after{color:var(--red)}
+  .opt.maybe.sel{border-color:var(--gold-deep);background:#fff6e3;box-shadow:0 8px 20px rgba(245,166,35,.2)}
+  .opt.maybe.sel::after{color:var(--gold-deep)}
+  .submit{width:100%;margin-top:24px;padding:18px;border:none;border-radius:14px;cursor:pointer;font-size:19px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#04130c;background:linear-gradient(180deg,var(--gold) 0%,var(--gold-deep) 100%);box-shadow:0 10px 26px rgba(245,166,35,.45);transition:.15s;}
+  .submit:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .submit:disabled{opacity:.6;cursor:wait;transform:none}
+  .hint{font-size:12.5px;color:#6b7280;text-align:center;margin-top:12px}
+  .board{margin-top:26px;background:rgba(4,19,12,.55);border:2px solid rgba(255,255,255,.18);border-radius:20px;padding:22px;backdrop-filter:blur(6px);}
+  .board h3{text-transform:uppercase;letter-spacing:.18em;font-size:14px;color:var(--gold);text-align:center;margin-bottom:6px}
+  .live{text-align:center;font-size:12px;color:#bfe3cf;margin-bottom:16px}
+  .live .dotlive{display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d27a;margin-right:6px;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .scores{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .score{background:rgba(0,0,0,.35);border-radius:14px;padding:16px;text-align:center;border:1.5px solid rgba(255,255,255,.12)}
+  .score .time{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#cfe9d9}
+  .score .num{font-size:46px;font-weight:900;color:#fff;line-height:1.05}
+  .score .num small{font-size:15px;font-weight:bold;color:var(--gold)}
+  .score .break{font-size:12px;color:#aacdb9;margin-top:6px}
+  .roster{margin-top:18px}
+  .roster h4{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#cfe9d9;margin-bottom:10px}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:6px 11px;border-radius:999px;margin:0 6px 8px 0;font-size:13px}
+  .pill .dot{width:9px;height:9px;border-radius:50%}
+  .dot.yes{background:#34d27a}.dot.no{background:#ff6b75}.dot.maybe{background:var(--gold)}
+  .pill .who{font-weight:bold}
+  .empty{font-size:13px;color:#9fc2af;font-style:italic}
+  .boardbtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .minibtn{flex:1;min-width:160px;padding:11px;border-radius:11px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
+  .minibtn:hover{background:rgba(255,255,255,.16)}
+  footer{text-align:center;margin-top:30px;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6}
+  .confetti{position:fixed;top:-10px;width:9px;height:14px;z-index:50;pointer-events:none;border-radius:2px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);background:#04130c;color:#fff;border:2px solid var(--gold);padding:14px 22px;border-radius:14px;font-weight:bold;z-index:60;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.2,1.3,.4,1)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <!-- This banner only shows until you paste your Apps Script URL below. -->
+  <div class="setupwarn" id="setupWarn" style="display:none">
+    ⚙️ <b>Almost there!</b> Open <code>index.html</code> and paste your Google Apps Script
+    Web app URL into the <code>APPS_SCRIPT_URL</code> line near the bottom, then re-upload.
+    Until then, the live headcount won't connect. (See DEPLOY-GITHUB-PAGES.md.)
+  </div>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="crest">⚽</div>
+      <div class="kicker">★ Saturday · July 4, 2026 ★</div>
+      <h1>World Cup<br>Watch Party</h1>
+      <div class="sub">Maletas United 2026 takes over the screen 🏆🇺🇸</div>
+      <div class="badges">
+        <span class="badge">📍 <b>Venue TBD</b> — vote &amp; we'll lock it</span>
+        <span class="badge">🍻 Cold drinks · 🌮 Good food · 📣 Loud fans</span>
+      </div>
+    </header>
+
+    <section class="card" id="formCard">
+      <h2>Lock in your spot</h2>
+      <p class="lead">Pick your game time, tell us if you're in, and drop your name. Everyone sees the headcount update live below.</p>
+      <form id="rsvpForm">
+        <label class="fld" for="name">Your name</label>
+        <input type="text" id="name" placeholder="e.g. Dave 'El Capitán' Freeman" autocomplete="name" required />
+
+        <label class="fld">Which game time works for you?</label>
+        <div class="grid two" id="timeGrid">
+          <label class="opt" data-group="time" data-value="12pm">
+            <input type="radio" name="time" value="12pm" required>
+            <span class="big">🕛</span><span class="lbl">12:00 PM Match</span><span class="meta">Early kickoff · lunch crowd</span>
+          </label>
+          <label class="opt" data-group="time" data-value="4pm">
+            <input type="radio" name="time" value="4pm">
+            <span class="big">🕓</span><span class="lbl">4:00 PM Match</span><span class="meta">Afternoon · prime time vibes</span>
+          </label>
+        </div>
+
+        <label class="fld">Are you in?</label>
+        <div class="grid three" id="rsvpGrid">
+          <label class="opt yes" data-group="rsvp" data-value="Yes">
+            <input type="radio" name="rsvp" value="Yes" required>
+            <span class="big">✅</span><span class="lbl">YES</span><span class="meta">I'm there!</span>
+          </label>
+          <label class="opt maybe" data-group="rsvp" data-value="Maybe">
+            <input type="radio" name="rsvp" value="Maybe">
+            <span class="big">🤔</span><span class="lbl">MAYBE</span><span class="meta">Trying...</span>
+          </label>
+          <label class="opt no" data-group="rsvp" data-value="No">
+            <input type="radio" name="rsvp" value="No">
+            <span class="big">❌</span><span class="lbl">NO</span><span class="meta">Can't make it</span>
+          </label>
+        </div>
+
+        <button type="submit" class="submit" id="submitBtn">⚽ Submit My RSVP</button>
+        <p class="hint">Changed your mind? Just RSVP again with the same name and it'll update.</p>
+      </form>
+    </section>
+
+    <section class="board">
+      <h3>🏟️ Live Headcount</h3>
+      <div class="live" id="liveStatus"><span class="dotlive"></span>Connecting…</div>
+      <div class="scores">
+        <div class="score">
+          <div class="time">🕛 12 PM Game</div>
+          <div class="num" id="count12">0<small> in</small></div>
+          <div class="break" id="break12">—</div>
+        </div>
+        <div class="score">
+          <div class="time">🕓 4 PM Game</div>
+          <div class="num" id="count4">0<small> in</small></div>
+          <div class="break" id="break4">—</div>
+        </div>
+      </div>
+      <div class="roster">
+        <h4>Who's responded</h4>
+        <div id="roster"><span class="empty">Loading RSVPs… ⚽</span></div>
+      </div>
+      <div class="boardbtns">
+        <button class="minibtn" id="refreshBtn">🔄 Refresh now</button>
+        <a class="minibtn" id="sheetLink" href="https://docs.google.com/spreadsheets/d/1i7ZxTMYY_iGVG7ohIaM9NRNl8io-ymyF3JUM3NU4u1o/edit" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;line-height:1.4">📊 Open full results sheet</a>
+      </div>
+    </section>
+
+    <section class="board" id="sheetEmbed">
+      <h3>📋 Full Tally (Google Sheet)</h3>
+      <div class="live">Live view of the responses spreadsheet</div>
+      <div style="border-radius:14px;overflow:hidden;border:1.5px solid rgba(255,255,255,.15)">
+        <iframe
+          title="Maletas United RSVP responses"
+          src="https://docs.google.com/spreadsheets/d/1i7ZxTMYY_iGVG7ohIaM9NRNl8io-ymyF3JUM3NU4u1o/preview"
+          style="width:100%;height:360px;border:0;background:#fff"
+          loading="lazy"></iframe>
+      </div>
+    </section>
+
+    <footer>
+      <strong>MALETAS UNITED 2026</strong> · Pickup soccer &amp; World Cup believers<br>
+      Maletas Awards voting coming soon — categories TBD 🏅
+    </footer>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     ⬇⬇⬇  PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE  ⬇⬇⬇
+     It looks like: https://script.google.com/macros/s/AKfy..../exec
+     (See DEPLOY-GITHUB-PAGES.md, step "Deploy the backend".)
+  ============================================================ */
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhSiPaGeL8pJmRPSC_KGUq7swGBflPsXSLy2msQhnYCqUuPRr0r52WUYtadFs6EwGVpw/exec";
+  /* ============================================================ */
+
+  var configured = APPS_SCRIPT_URL.indexOf("script.google.com") !== -1;
+  if(!configured){ document.getElementById("setupWarn").style.display="block"; }
+
+  // floating soccer balls
+  var balls=["⚽","🏆","⚽","🥅","⚽"];
+  for(var i=0;i<7;i++){
+    var b=document.createElement("div");b.className="ball";b.textContent=balls[i%balls.length];
+    b.style.left=(Math.random()*100)+"vw";b.style.animationDuration=(14+Math.random()*16)+"s";
+    b.style.animationDelay=(-Math.random()*20)+"s";b.style.fontSize=(28+Math.random()*40)+"px";
+    document.body.appendChild(b);
+  }
+
+  // option selection styling
+  document.querySelectorAll(".opt").forEach(function(opt){
+    opt.addEventListener("click",function(){
+      var group=opt.getAttribute("data-group");
+      document.querySelectorAll('.opt[data-group="'+group+'"]').forEach(function(o){o.classList.remove("sel");});
+      opt.classList.add("sel");
+      var input=opt.querySelector("input"); if(input) input.checked=true;
+    });
+  });
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+  function render(list){
+    list=Array.isArray(list)?list:[];
+    var c12=0,c4=0,b12={Yes:0,Maybe:0,No:0},b4={Yes:0,Maybe:0,No:0};
+    list.forEach(function(r){
+      var bucket=r.time==="12pm"?b12:b4; bucket[r.rsvp]=(bucket[r.rsvp]||0)+1;
+      if(r.rsvp==="Yes"){ if(r.time==="12pm")c12++; else c4++; }
+    });
+    document.getElementById("count12").innerHTML=c12+'<small> in</small>';
+    document.getElementById("count4").innerHTML=c4+'<small> in</small>';
+    document.getElementById("break12").textContent="✅ "+b12.Yes+"  🤔 "+b12.Maybe+"  ❌ "+b12.No;
+    document.getElementById("break4").textContent ="✅ "+b4.Yes+"  🤔 "+b4.Maybe+"  ❌ "+b4.No;
+    var roster=document.getElementById("roster");
+    if(list.length===0){roster.innerHTML='<span class="empty">No RSVPs yet — be the first to kick things off! ⚽</span>';return;}
+    roster.innerHTML=list.map(function(r){
+      var t=r.time==="12pm"?"12 PM":"4 PM";
+      return '<span class="pill"><span class="dot '+String(r.rsvp).toLowerCase()+'"></span><span class="who">'+esc(r.name)+'</span> · '+esc(r.rsvp)+' · '+t+'</span>';
+    }).join("");
+  }
+
+  function setStatus(text,ok){
+    document.getElementById("liveStatus").innerHTML='<span class="dotlive" style="background:'+(ok===false?'#ff6b75':'#34d27a')+'"></span>'+text;
+  }
+
+  function load(){
+    if(!configured){ setStatus("Not connected — add your Apps Script URL",false); return; }
+    fetch(APPS_SCRIPT_URL, {method:"GET"})
+      .then(function(r){return r.json();})
+      .then(function(list){ render(list); setStatus("Live · updates automatically",true); })
+      .catch(function(){ setStatus("Couldn't reach the server — tap Refresh",false); });
+  }
+
+  function confetti(){
+    var colors=["#ffd23f","#0a8a4a","#e63946","#1d6fb8","#ffffff"];
+    for(var i=0;i<70;i++){(function(){
+      var c=document.createElement("div");c.className="confetti";
+      c.style.left=(Math.random()*100)+"vw";c.style.background=colors[i%colors.length];
+      c.style.transform="rotate("+(Math.random()*360)+"deg)";
+      document.body.appendChild(c);
+      c.animate([{transform:"translateY(-10px) rotate(0)",opacity:1},
+        {transform:"translateY("+(window.innerHeight+40)+"px) rotate("+(Math.random()*720)+"deg)",opacity:.9}],
+        {duration:2200+Math.random()*1600,easing:"cubic-bezier(.2,.6,.4,1)"}).onfinish=function(){c.remove();};
+    })();}
+  }
+
+  var toastT;
+  function toast(msg){
+    var t=document.getElementById("toast");
+    if(!t){t=document.createElement("div");t.id="toast";t.className="toast";document.body.appendChild(t);}
+    t.textContent=msg;t.classList.add("show");
+    clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show");},3200);
+  }
+
+  document.getElementById("rsvpForm").addEventListener("submit",function(e){
+    e.preventDefault();
+    var name=document.getElementById("name").value.trim();
+    var time=(document.querySelector('input[name="time"]:checked')||{}).value;
+    var rsvp=(document.querySelector('input[name="rsvp"]:checked')||{}).value;
+    if(!name){toast("Add your name first ⚽");return;}
+    if(!time){toast("Pick a game time 🕛");return;}
+    if(!rsvp){toast("Yes, No, or Maybe? 🤔");return;}
+    if(!configured){toast("Setup needed: add your Apps Script URL to index.html.");return;}
+
+    var btn=document.getElementById("submitBtn");
+    btn.disabled=true; btn.textContent="Sending…";
+    var form=this;
+    // Send as text/plain so the browser treats it as a "simple request" (no CORS preflight).
+    fetch(APPS_SCRIPT_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({name:name,time:time,rsvp:rsvp})
+    })
+    .then(function(r){return r.json();})
+    .then(function(list){ render(list); setStatus("Live · updates automatically",true); })
+    .catch(function(){ /* even if reading the reply is blocked, refresh below will catch up */ })
+    .then(function(){
+      btn.disabled=false; btn.textContent="⚽ Submit My RSVP";
+      form.reset();
+      document.querySelectorAll(".opt.sel").forEach(function(o){o.classList.remove("sel");});
+      if(rsvp==="Yes") confetti();
+      toast(rsvp==="Yes"?"⚽ You're in, "+name.split(" ")[0]+"! See you there!":
+            rsvp==="Maybe"?"Got it — hope you can make it! 🤞":"Thanks for letting us know 👍");
+      document.querySelector(".board").scrollIntoView({behavior:"smooth"});
+      setTimeout(load,1200); // pull the authoritative list from the server
+    });
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click",load);
+
+  load();
+  setInterval(load,8000); // live auto-refresh every 8s
+})();
+</script>
+</body>
+</html>
