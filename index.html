@@ -111,11 +111,11 @@
         <label class="fld">Which game time works for you?</label>
         <div class="grid two" id="timeGrid">
           <label class="opt" data-group="time" data-value="12pm">
-            <input type="radio" name="time" value="12pm" required>
+            <input type="radio" name="time" value="12 PM game" required>
             <span class="big">🕛</span><span class="lbl">12:00 PM Match</span><span class="meta">Early kickoff · lunch crowd</span>
           </label>
           <label class="opt" data-group="time" data-value="4pm">
-            <input type="radio" name="time" value="4pm">
+            <input type="radio" name="time" value="4 PM game">
             <span class="big">🕓</span><span class="lbl">4:00 PM Match</span><span class="meta">Afternoon · prime time vibes</span>
           </label>
         </div>
@@ -220,12 +220,14 @@
 
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 
+  function isNoon(t){ return /^\s*12/.test(String(t)); }
+
   function render(list){
     list=Array.isArray(list)?list:[];
     var c12=0,c4=0,b12={Yes:0,Maybe:0,No:0},b4={Yes:0,Maybe:0,No:0};
     list.forEach(function(r){
-      var bucket=r.time==="12pm"?b12:b4; bucket[r.rsvp]=(bucket[r.rsvp]||0)+1;
-      if(r.rsvp==="Yes"){ if(r.time==="12pm")c12++; else c4++; }
+      var bucket=isNoon(r.time)?b12:b4; bucket[r.rsvp]=(bucket[r.rsvp]||0)+1;
+      if(r.rsvp==="Yes"){ if(isNoon(r.time))c12++; else c4++; }
     });
     document.getElementById("count12").innerHTML=c12+'<small> in</small>';
     document.getElementById("count4").innerHTML=c4+'<small> in</small>';
@@ -234,7 +236,7 @@
     var roster=document.getElementById("roster");
     if(list.length===0){roster.innerHTML='<span class="empty">No RSVPs yet — be the first to kick things off! ⚽</span>';return;}
     roster.innerHTML=list.map(function(r){
-      var t=r.time==="12pm"?"12 PM":"4 PM";
+      var t=isNoon(r.time)?"12 PM":"4 PM";
       return '<span class="pill"><span class="dot '+String(r.rsvp).toLowerCase()+'"></span><span class="who">'+esc(r.name)+'</span> · '+esc(r.rsvp)+' · '+t+'</span>';
     }).join("");
   }
