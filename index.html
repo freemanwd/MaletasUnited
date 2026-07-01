@@ -57,7 +57,7 @@
   .live{text-align:center;font-size:12px;color:#bfe3cf;margin-bottom:16px}
   .live .dotlive{display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d27a;margin-right:6px;animation:pulse 1.6s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-  .scores{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .scores{display:grid;grid-template-columns:1fr;gap:14px;max-width:400px;margin:0 auto}
   .score{background:rgba(0,0,0,.35);border-radius:14px;padding:16px;text-align:center;border:1.5px solid rgba(255,255,255,.12)}
   .score .time{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#cfe9d9}
   .score .num{font-size:46px;font-weight:900;color:#fff;line-height:1.05}
@@ -96,7 +96,7 @@
       <h1>World Cup<br>Watch Party</h1>
       <div class="sub">Maletas United 2026 takes over the screen 🏆🇺🇸</div>
       <div class="badges">
-        <span class="badge">📍 <b>Venue TBD</b> — vote &amp; we'll lock it</span>
+        <span class="badge">📍 <b>Culhane's Irish Pub, Southside</b> — 12 PM kickoff confirmed!</span>
         <span class="badge">🍻 Cold drinks · 🌮 Good food · 📣 Loud fans</span>
       </div>
     </header>
@@ -109,14 +109,10 @@
         <input type="text" id="name" placeholder="e.g. Dave 'El Capitán' Freeman" autocomplete="name" required />
 
         <label class="fld">Which game time works for you?</label>
-        <div class="grid two" id="timeGrid">
+        <div class="grid" id="timeGrid" style="max-width:380px;margin:0 auto">
           <label class="opt" data-group="time" data-value="12pm">
             <input type="radio" name="time" value="12 PM game" required>
-            <span class="big">🕛</span><span class="lbl">12:00 PM Match</span><span class="meta">Early kickoff · lunch crowd</span>
-          </label>
-          <label class="opt" data-group="time" data-value="4pm">
-            <input type="radio" name="time" value="4 PM game">
-            <span class="big">🕓</span><span class="lbl">4:00 PM Match</span><span class="meta">Afternoon · prime time vibes</span>
+            <span class="big">🕛</span><span class="lbl">12:00 PM Match</span><span class="meta">✅ Confirmed · Culhane's Irish Pub, Southside</span>
           </label>
         </div>
 
@@ -149,11 +145,6 @@
           <div class="time">🕛 12 PM Game</div>
           <div class="num" id="count12">0<small> in</small></div>
           <div class="break" id="break12">—</div>
-        </div>
-        <div class="score">
-          <div class="time">🕓 4 PM Game</div>
-          <div class="num" id="count4">0<small> in</small></div>
-          <div class="break" id="break4">—</div>
         </div>
       </div>
       <div class="roster">
