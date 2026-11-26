@@ -1,6 +1,9 @@
 import type {
+  Ad,
   AdminSnapshot,
   CreateGameInput,
+  DirectoryPlayer,
+  ExternalListing,
   Game,
   GameFilters,
   Host,
@@ -8,6 +11,7 @@ import type {
   Product,
   SessionUser,
   Vendor,
+  VipPlan,
   WaiverAck,
 } from "../types";
 
@@ -22,14 +26,16 @@ export interface DataRepository {
   listGames(filters: GameFilters): Promise<Game[]>;
   getGame(id: string): Promise<Game | null>;
   createGame(input: CreateGameInput, host: SessionUser): Promise<Game>;
-  joinGame(
-    id: string,
-    user: SessionUser,
-    waiver: WaiverAck,
-  ): Promise<Game>;
+  joinGame(id: string, user: SessionUser, waiver: WaiverAck): Promise<Game>;
   leaveGame(id: string, user: SessionUser): Promise<Game>;
+  requestJoin(id: string, user: SessionUser): Promise<Game>;
+  approveJoin(id: string, playerId: string, host: SessionUser): Promise<Game>;
 
   listHosts(): Promise<Host[]>;
+  listListings(filters: GameFilters): Promise<ExternalListing[]>;
+  listAds(): Promise<Ad[]>;
+  listPlayers(): Promise<DirectoryPlayer[]>;
+  getPlayerByHandle(handle: string): Promise<DirectoryPlayer | null>;
 
   listPosts(): Promise<Post[]>;
   createPost(text: string, user: SessionUser): Promise<Post>;
@@ -42,12 +48,30 @@ export interface DataRepository {
   addToCart(productId: string): Promise<string[]>;
   removeFromCart(index: number): Promise<string[]>;
 
-  setPlus(enabled: boolean): Promise<boolean>;
+  setVip(plan: VipPlan | null): Promise<boolean>;
+  setVipAlerts(patch: {
+    hostEmailOptIn?: boolean;
+    alertRadius?: boolean;
+    alertMatches?: boolean;
+    alertWatch?: boolean;
+  }): Promise<void>;
   setFilters(patch: Partial<GameFilters> & { zip?: string }): Promise<void>;
   setVendorRate(vendorId: string, rate: number): Promise<Vendor | null>;
   getAdminSnapshot(): Promise<AdminSnapshot>;
 
   setPendingReferral(code: string | null): Promise<void>;
+
+  sendFriendRequest(fromId: string, toId: string): Promise<void>;
+  acceptFriendRequest(userId: string, otherId: string): Promise<void>;
+  unfriend(userId: string, otherId: string): Promise<void>;
+  blockPlayer(blockerId: string, blockedId: string): Promise<void>;
+  unblockPlayer(blockerId: string, blockedId: string): Promise<void>;
+  reportTarget(
+    reporterId: string,
+    targetType: "player" | "post" | "game",
+    targetId: string,
+    reason: string,
+  ): Promise<void>;
 }
 
-export const STORAGE_KEY = "maletas-play-v1";
+export const STORAGE_KEY = "maletas-play-v2";

@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FORMATS, REPEATS } from "@/lib/types";
+import { DEFAULT_HOST_TERMS, DEFAULT_HOST_WAIVER } from "@/lib/legal";
+import { FORMATS, REPEATS, VISIBILITIES } from "@/lib/types";
 import { usePlay } from "@/lib/play-context";
+import { MatchmakerNotice } from "./MatchmakerNotice";
 
 export function HostForm() {
   const { user, repo, closeModal, showToast } = usePlay();
@@ -11,10 +13,13 @@ export function HostForm() {
   async function onSubmit(formData: FormData) {
     if (!user) return;
     try {
+      const fee = String(formData.get("fee") ?? "").trim() || "Free";
       const game = await repo.createGame(
         {
           title: String(formData.get("title") ?? "").trim(),
           field: String(formData.get("field") ?? "").trim(),
+          fieldPrivate: String(formData.get("fieldPrivate") ?? "").trim(),
+          hideAddressUntilApproved: formData.get("hideAddress") === "on",
           city: String(formData.get("city") ?? "").trim(),
           zip: String(formData.get("zip") ?? "").trim(),
           date: String(formData.get("date") ?? ""),
@@ -22,7 +27,11 @@ export function HostForm() {
           repeat: String(formData.get("repeat") ?? "Weekly") as (typeof REPEATS)[number],
           format: String(formData.get("fmt") ?? "7v7") as (typeof FORMATS)[number],
           spots: Number(formData.get("spots") ?? 10),
-          fee: String(formData.get("fee") ?? "").trim() || "Free",
+          fee,
+          feePaidToHost: fee !== "Free",
+          visibility: String(formData.get("visibility") ?? "public") as (typeof VISIBILITIES)[number],
+          hostTerms: String(formData.get("hostTerms") ?? "").trim() || DEFAULT_HOST_TERMS,
+          hostWaiver: String(formData.get("hostWaiver") ?? "").trim() || DEFAULT_HOST_WAIVER,
         },
         user,
       );
@@ -37,6 +46,7 @@ export function HostForm() {
   return (
     <>
       <h2>Host a game</h2>
+      <MatchmakerNotice variant="host" />
       <form className="form" action={onSubmit}>
         <label htmlFor="f_title">
           Game name
@@ -49,14 +59,27 @@ export function HostForm() {
           />
         </label>
         <label htmlFor="f_field">
-          Field
+          Field (shown to everyone)
           <input
             id="f_field"
             name="field"
             type="text"
             required
-            placeholder="Field name or area (keep real addresses private)"
+            placeholder="Neighborhood or area"
           />
+        </label>
+        <label htmlFor="f_field_private">
+          Exact address (optional)
+          <input
+            id="f_field_private"
+            name="fieldPrivate"
+            type="text"
+            placeholder="Street address, shared after approval"
+          />
+        </label>
+        <label className="check" htmlFor="f_hide">
+          <input id="f_hide" name="hideAddress" type="checkbox" />
+          <span>Hide the exact address until I approve a player</span>
         </label>
         <div className="two">
           <label htmlFor="hf_city">
@@ -114,13 +137,33 @@ export function HostForm() {
             <input id="f_spots" name="spots" type="number" min={2} max={40} required defaultValue={10} />
           </label>
           <label htmlFor="f_fee">
-            Fee per player
-            <input id="f_fee" name="fee" type="text" placeholder="Free" />
+            Your fee
+            <input id="f_fee" name="fee" type="text" placeholder="Free or an amount" />
           </label>
         </div>
         <p className="small muted">
+          If you charge a fee, it is paid directly to you for now. Maletas does not collect it in
+          this preview.
+        </p>
+        <label htmlFor="f_vis">
+          Who can see and join
+          <select id="f_vis" name="visibility" defaultValue="public">
+            <option value="public">Public — anyone can join</option>
+            <option value="vip">VIP only — Maletas VIP members</option>
+            <option value="invite">Invite only — you approve each player</option>
+          </select>
+        </label>
+        <label htmlFor="f_terms">
+          Your terms
+          <textarea id="f_terms" name="hostTerms" defaultValue={DEFAULT_HOST_TERMS} />
+        </label>
+        <label htmlFor="f_waiver">
+          Your liability waiver (players must accept)
+          <textarea id="f_waiver" name="hostWaiver" defaultValue={DEFAULT_HOST_WAIVER} />
+        </label>
+        <p className="small muted">
           Maletas games are weekends, mostly Saturday mornings, and weeknights while there is
-          daylight. Sundays are not used.
+          daylight. Sundays are not used. You, not Maletas, are the host.
         </p>
         <div className="row">
           <button className="btn primary" type="submit">

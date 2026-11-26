@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <p className="demo-banner">
-        Preview · sample data · Jacksonville is the first hub · not indexed yet
+        Preview · matchmaker demo · sample data · Jacksonville is the first hub · not indexed yet
       </p>
       <header className="top">
         <div className="wrap">
@@ -53,6 +53,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main id="main">{children}</main>
+      <footer className="site-foot">
+        <div className="wrap">
+          <p>
+            Maletas is a matchmaker. It is not a nonprofit, not a host, and not liable for games,
+            fields or players.{" "}
+            <Link href="/terms">Terms / Disclaimer</Link>
+            {" · "}
+            <Link href="/vip">VIP</Link>
+            {" · "}
+            <Link href="/advertise">Advertise</Link>
+          </p>
+        </div>
+      </footer>
       <nav className="tabbar" aria-label="Sections">
         {TABS.map((item) => (
           <Link

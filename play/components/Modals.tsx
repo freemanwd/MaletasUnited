@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { money } from "@/lib/format";
+import { MATCHMAKER_SHORT } from "@/lib/legal";
 import { usePlay } from "@/lib/play-context";
-import { plusBenefits, siteConfig, waiverCopy } from "@/lib/site";
+import { siteConfig, vipBenefits, waiverCopy } from "@/lib/site";
 import { HostForm } from "./HostForm";
 import { ProfileForm } from "./ProfileForm";
 
@@ -46,21 +47,23 @@ export function Overlay() {
 }
 
 function ModalBody() {
-  const { modal, closeModal, repo, plus, showToast, joinWithWaiver, state } = usePlay();
+  const { modal, closeModal, repo, vip, showToast, joinWithWaiver, state } = usePlay();
   const router = useRouter();
 
   if (modal?.type === "signup") return <ProfileForm />;
   if (modal?.type === "host") return <HostForm />;
 
-  if (modal?.type === "plus") {
+  if (modal?.type === "vip") {
     return (
       <>
-        <h2>Maletas Plus</h2>
+        <h2>Maletas VIP</h2>
         <p>
-          <span className="price num">{siteConfig.plusPrice}</span> a month. Cancel any time.
+          <span className="price num">{siteConfig.vipMonthly}</span> a month, or{" "}
+          <span className="price num">{siteConfig.vipYearly}</span> a year (save{" "}
+          {siteConfig.vipYearlySave}).
         </p>
         <ul className="clean">
-          {plusBenefits.map((item) => (
+          {vipBenefits.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
@@ -73,12 +76,23 @@ function ModalBody() {
             className="btn primary"
             type="button"
             onClick={async () => {
-              await repo.setPlus(true);
+              await repo.setVip("monthly");
               closeModal();
-              showToast("Plus is on. Search by ZIP or postcode.");
+              showToast("VIP monthly is on in this demo");
             }}
           >
-            Turn on Plus in this demo
+            $1.99 / month (demo)
+          </button>
+          <button
+            className="btn pitch"
+            type="button"
+            onClick={async () => {
+              await repo.setVip("yearly");
+              closeModal();
+              showToast("VIP yearly is on in this demo");
+            }}
+          >
+            $20 / year (demo)
           </button>
           <button className="btn" type="button" onClick={closeModal}>
             Not now
@@ -129,8 +143,8 @@ function ModalBody() {
               <strong className="num">{money(total)}</strong>
             </div>
             <p className="small muted">
-              Demo: checkout is not connected. On the live site Stripe takes payment, pays the
-              vendor, and keeps the Maletas commission.
+              Demo: checkout is not connected. Optional Maletas merch later uses Stripe Connect.
+              Partner listings checkout on the vendor site.
             </p>
             <button className="btn primary" type="button" disabled>
               Checkout (demo)
@@ -152,9 +166,15 @@ function ModalBody() {
     return (
       <>
         <h2>{waiverCopy.title}</h2>
-        <p>{waiverCopy.body}</p>
+        <p>{MATCHMAKER_SHORT}</p>
+        <p>{game.hostWaiver}</p>
+        {game.feePaidToHost ? (
+          <p className="small muted">
+            Fee {game.fee}, paid directly to the host. Maletas does not collect it.
+          </p>
+        ) : null}
         <p className="small muted">
-          You are signing up for {game.title} · {game.when}.
+          You are signing up for {game.title} · {game.when}. Draft pending attorney review.
         </p>
         <form
           className="form"
@@ -187,5 +207,5 @@ function ModalBody() {
     );
   }
 
-  return plus ? null : null;
+  return vip ? null : null;
 }

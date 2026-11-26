@@ -56,6 +56,24 @@ export function ensureHostRole(roles: ClerkRole[]): ClerkRole[] {
   return roles.includes("player") ? ["player", "host"] : ["host"];
 }
 
+export function slugHandle(value: string): string {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 24) || "player"
+  );
+}
+
+export function uniqueHandle(desired: string, taken: Set<string>): string {
+  const base = slugHandle(desired);
+  if (!taken.has(base)) return base;
+  let n = 2;
+  while (taken.has(`${base}${n}`)) n += 1;
+  return `${base}${n}`;
+}
+
 export function makeInviteCode(name: string): string {
   const stem =
     name

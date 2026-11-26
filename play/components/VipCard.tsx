@@ -2,48 +2,51 @@
 
 import Link from "next/link";
 import { usePlay } from "@/lib/play-context";
-import { plusBenefits, siteConfig } from "@/lib/site";
+import { siteConfig, vipBenefits } from "@/lib/site";
 
-export function PlusCard({ compact = false }: { compact?: boolean }) {
-  const { plus, repo, showToast, openModal } = usePlay();
+export function VipCard({ compact = false }: { compact?: boolean }) {
+  const { vip, repo, showToast, openModal } = usePlay();
 
   async function cancel() {
-    await repo.setPlus(false);
-    showToast("Plus cancelled in this demo");
+    await repo.setVip(null);
+    showToast("VIP cancelled in this demo");
   }
 
   return (
     <div className="card">
       <div className="row between">
-        <h3>Maletas Plus</h3>
+        <h3>Maletas VIP</h3>
         <span className="price num">
-          {siteConfig.plusPrice}
+          {siteConfig.vipMonthly}
           <span className="small muted" style={{ fontFamily: "var(--body)" }}>
             {" "}
-            / {siteConfig.plusPeriod}
+            / month
           </span>
         </span>
       </div>
+      <p className="small muted">
+        or {siteConfig.vipYearly} / year (save {siteConfig.vipYearlySave} vs {siteConfig.vipYearlyWas}).
+      </p>
       <ul className="clean">
-        {plusBenefits.map((item) => (
+        {vipBenefits.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
       <p className="small muted">Demo: no card is taken and nothing is charged.</p>
-      {plus ? (
+      {vip ? (
         <div className="row between">
-          <span className="tag plus">Active</span>
+          <span className="tag vip">Active</span>
           <button className="btn sm" type="button" onClick={cancel}>
             Cancel
           </button>
         </div>
       ) : compact ? (
-        <Link className="btn primary" href="/plus">
-          Start Plus
+        <Link className="btn primary" href="/vip">
+          Start VIP
         </Link>
       ) : (
-        <button className="btn primary" type="button" onClick={() => openModal({ type: "plus" })}>
-          Start Plus
+        <button className="btn primary" type="button" onClick={() => openModal({ type: "vip" })}>
+          Start VIP
         </button>
       )}
     </div>

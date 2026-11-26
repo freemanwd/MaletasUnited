@@ -1,5 +1,10 @@
+import { DEFAULT_HOST_TERMS, DEFAULT_HOST_WAIVER } from "../legal";
 import type {
+  Ad,
   AdminSnapshot,
+  DirectoryPlayer,
+  ExternalListing,
+  Friendship,
   Game,
   Host,
   PlayState,
@@ -10,16 +15,29 @@ import type {
 
 /**
  * Clearly labelled sample data. Jacksonville, FL is the first hub.
- * Other cities are example hubs — not real venues, people, or partnerships.
- * Times follow Maletas' pattern: weekend games, mostly Saturday mornings,
- * plus weeknight games while there is daylight. No Sundays.
+ * Other cities are example hubs — not real venues or partnerships.
+ * Dave is the host of the sample Glen Kernan VIP group (requested).
+ * Culhane's Irish Pub is named only as Maletas' 2026 World Cup watch-party
+ * spot, not as an advertiser or shop partner.
+ * Times: weekend games, mostly Saturday mornings, plus weeknight daylight. No Sundays.
  */
 export const SAMPLE_DISCLAIMER =
-  "Games, hosts, players, vendors and figures shown here are sample data for this preview. Jacksonville is the first hub. Field names are examples, not real venues.";
+  "Games, hosts, players, vendors, listings, ads and figures shown here are sample data for this preview unless a name is called out as a real Maletas fact. Jacksonville is the first hub. Field names are examples, not real venues. Listings labelled “listed from the web” are fictitious directory rows, not real organizations or partnerships.";
 
 export const FIRST_HUB = "Jacksonville";
 
 const hosts: Host[] = [
+  {
+    id: "host-dave",
+    name: "Dave",
+    city: "Jacksonville",
+    fields: "Private field · Glen Kernan area",
+    surface: "Grass, full size (sample private group)",
+    since: "2012",
+    sample: true,
+    inviteCode: "GLENKERNAN",
+    emailList: true,
+  },
   {
     id: "host-jax-a",
     name: "Sample Host Jax",
@@ -29,6 +47,7 @@ const hosts: Host[] = [
     since: "2012",
     sample: true,
     inviteCode: "SAMPLEJAX",
+    emailList: true,
   },
   {
     id: "host-jax-b",
@@ -39,6 +58,7 @@ const hosts: Host[] = [
     since: "2024",
     sample: true,
     inviteCode: "EXAMPLEJAX",
+    emailList: false,
   },
   {
     id: "host-mia",
@@ -49,6 +69,7 @@ const hosts: Host[] = [
     since: "2025",
     sample: true,
     inviteCode: "SAMPLEMIA",
+    emailList: false,
   },
   {
     id: "host-atl",
@@ -59,6 +80,7 @@ const hosts: Host[] = [
     since: "2025",
     sample: true,
     inviteCode: "SAMPLEATL",
+    emailList: false,
   },
   {
     id: "host-aus",
@@ -69,11 +91,141 @@ const hosts: Host[] = [
     since: "2026",
     sample: true,
     inviteCode: "SAMPLEAUS",
+    emailList: false,
   },
 ];
 
-const games: Game[] = [
+const players: DirectoryPlayer[] = [
   {
+    id: "player-dave",
+    handle: "dave",
+    name: "Dave",
+    city: "Jacksonville",
+    zip: "32224",
+    position: "Midfielder",
+    bio: "Hosts the Glen Kernan Saturday group. Sample player card for this preview.",
+    social: "",
+    roles: ["player", "host"],
+    privacy: "public",
+    sample: true,
+  },
+  {
+    id: "player-a",
+    handle: "river",
+    name: "Sample Player River",
+    city: "Jacksonville",
+    zip: "32204",
+    position: "Forward",
+    bio: "Late runs, brings oranges. Sample player only.",
+    social: "",
+    roles: ["player"],
+    privacy: "public",
+    sample: true,
+  },
+  {
+    id: "player-b",
+    handle: "cam",
+    name: "Sample Player Cam",
+    city: "Jacksonville",
+    zip: "32216",
+    position: "Defender",
+    bio: "Left foot, organizes the back line. Sample player only.",
+    social: "",
+    roles: ["player"],
+    privacy: "public",
+    sample: true,
+  },
+  {
+    id: "player-c",
+    handle: "ness",
+    name: "Sample Player Ness",
+    city: "Jacksonville",
+    zip: "32211",
+    position: "Goalkeeper",
+    bio: "Friends-only profile to show privacy. Sample player only.",
+    social: "",
+    roles: ["player"],
+    privacy: "friends-only",
+    sample: true,
+  },
+  {
+    id: "player-d",
+    handle: "jordan",
+    name: "Sample Player Jordan",
+    city: "Atlanta",
+    zip: "30318",
+    position: "Utility",
+    bio: "Example-hub player. Sample only.",
+    social: "",
+    roles: ["player"],
+    privacy: "public",
+    sample: true,
+  },
+  {
+    id: "player-e",
+    handle: "marisol",
+    name: "Sample Player Marisol",
+    city: "Miami",
+    zip: "33130",
+    position: "Midfielder",
+    bio: "Example-hub player. Sample only.",
+    social: "",
+    roles: ["player"],
+    privacy: "public",
+    sample: true,
+  },
+];
+
+function hosted(partial: Omit<Game, "fieldPrivate" | "hideAddressUntilApproved" | "feePaidToHost" | "visibility" | "hostTerms" | "hostWaiver" | "inviteCode" | "approvedIds" | "pendingIds" | "rosterIds"> & Partial<Game>): Game {
+  return {
+    fieldPrivate: "",
+    hideAddressUntilApproved: false,
+    feePaidToHost: partial.fee !== "Free" && Boolean(partial.fee),
+    visibility: "public",
+    hostTerms: DEFAULT_HOST_TERMS,
+    hostWaiver: DEFAULT_HOST_WAIVER,
+    inviteCode: "",
+    approvedIds: [],
+    pendingIds: [],
+    rosterIds: [],
+    ...partial,
+  };
+}
+
+const games: Game[] = [
+  hosted({
+    id: "jax-glen-kernan",
+    title: "Maletas at Glen Kernan (sample VIP group)",
+    hostId: "host-dave",
+    hostName: "Dave",
+    field: "Private field · Glen Kernan area",
+    fieldPrivate:
+      "Exact street address is shared after Dave approves you. (Sample — not a real street.)",
+    hideAddressUntilApproved: true,
+    city: "Jacksonville",
+    country: "USA",
+    zip: "32224",
+    format: "11v11",
+    weekday: "Sat",
+    kickoff: "09:00",
+    when: "Sat 09:00",
+    repeat: "Weekly",
+    spots: 18,
+    fee: "Free",
+    feePaidToHost: false,
+    visibility: "vip",
+    hostTerms:
+      "Private regular for the Glen Kernan Maletas group. VIP members may request a spot. The host decides who plays. Address stays hidden until you are approved. Fees, if any, are paid directly to the host.",
+    hostWaiver:
+      "I know this is a private pickup on a private field. I play at my own risk. Dave is the host, not Maletas. Maletas is only a matchmaker and is not organizing this game.",
+    inviteCode: "GLENKERNAN",
+    roster: ["Dave", "Sample Player River", "Sample Player Cam"],
+    rosterIds: ["player-dave", "player-a", "player-b"],
+    approvedIds: ["player-dave", "player-a", "player-b"],
+    pendingIds: [],
+    sample: true,
+  }),
+  hosted({
     id: "jax-sat-11s",
     title: "Saturday morning 11s (sample)",
     hostId: "host-jax-a",
@@ -91,7 +243,7 @@ const games: Game[] = [
     fee: "Free",
     roster: [
       "Sample Host Jax",
-      "Player A",
+      "Sample Player River",
       "Player B",
       "Player C",
       "Player D",
@@ -105,9 +257,10 @@ const games: Game[] = [
       "Player L",
       "Player M",
     ],
+    rosterIds: ["host-jax-a", "player-a"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "jax-sat-7s",
     title: "Saturday morning 7s (sample)",
     hostId: "host-jax-b",
@@ -122,10 +275,11 @@ const games: Game[] = [
     when: "Sat 08:00",
     repeat: "Weekly",
     spots: 14,
-    fee: "Free",
+    fee: "$5",
+    feePaidToHost: true,
     roster: [
       "Example Host Jax",
-      "Player N",
+      "Sample Player Cam",
       "Player O",
       "Player P",
       "Player Q",
@@ -134,9 +288,10 @@ const games: Game[] = [
       "Player T",
       "Player U",
     ],
+    rosterIds: ["host-jax-b", "player-b"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "jax-wed-5s",
     title: "Weeknight 5s while there's daylight (sample)",
     hostId: "host-jax-a",
@@ -154,14 +309,15 @@ const games: Game[] = [
     fee: "Free",
     roster: [
       "Sample Host Jax",
-      "Player V",
+      "Sample Player Ness",
       "Player W",
       "Player X",
       "Player Y",
     ],
+    rosterIds: ["host-jax-a", "player-c"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "jax-fri-7s",
     title: "Friday daylight 7s (sample)",
     hostId: "host-jax-b",
@@ -179,8 +335,8 @@ const games: Game[] = [
     fee: "Free",
     roster: ["Example Host Jax", "Player Z", "Player AA", "Player BB"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "jax-sat-oneoff",
     title: "One-off Saturday kickabout (sample)",
     hostId: "host-jax-b",
@@ -196,10 +352,14 @@ const games: Game[] = [
     repeat: "One-off",
     spots: 10,
     fee: "Free",
+    visibility: "invite",
+    hideAddressUntilApproved: true,
+    fieldPrivate: "Example park gate code shared after approval. (Sample.)",
+    hostTerms: "Invite-only one-off. The host approves each name before the address is shared.",
     roster: ["Example Host Jax", "Player CC", "Player DD"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "mia-sat-7s",
     title: "Saturday morning 7s (example hub)",
     hostId: "host-mia",
@@ -217,15 +377,16 @@ const games: Game[] = [
     fee: "Free",
     roster: [
       "Sample Host Miami",
-      "Player EE",
+      "Sample Player Marisol",
       "Player FF",
       "Player GG",
       "Player HH",
       "Player II",
     ],
+    rosterIds: ["host-mia", "player-e"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "atl-thu-5s",
     title: "Thursday daylight 5s (example hub)",
     hostId: "host-atl",
@@ -241,10 +402,11 @@ const games: Game[] = [
     repeat: "Weekly",
     spots: 10,
     fee: "Free",
-    roster: ["Sample Host Atlanta", "Player JJ", "Player KK", "Player LL"],
+    roster: ["Sample Host Atlanta", "Sample Player Jordan", "Player KK", "Player LL"],
+    rosterIds: ["host-atl", "player-d"],
     sample: true,
-  },
-  {
+  }),
+  hosted({
     id: "aus-sat-11s",
     title: "Saturday morning 11s (example hub)",
     hostId: "host-aus",
@@ -272,12 +434,14 @@ const games: Game[] = [
       "Player TT",
     ],
     sample: true,
-  },
+  }),
 ];
 
 const posts: Post[] = [
   {
     id: "post-1",
+    authorId: "host-jax-a",
+    authorHandle: "sample-host-jax",
     who: "Sample Host Jax",
     role: "Host",
     city: "Jacksonville",
@@ -287,17 +451,33 @@ const posts: Post[] = [
     sample: true,
   },
   {
+    id: "post-dave",
+    authorId: "player-dave",
+    authorHandle: "dave",
+    who: "Dave",
+    role: "Host",
+    city: "Jacksonville",
+    text: "Glen Kernan Saturday is VIP this season. Request a spot if you have Maletas VIP and I will share the field after I approve you. (Sample post.)",
+    likes: 18,
+    liked: false,
+    sample: true,
+  },
+  {
     id: "post-2",
+    authorId: "news-local",
+    authorHandle: "maletas-local",
     who: "Maletas Local",
     role: "News",
     city: "Jacksonville",
-    text: "Sample local story: Jacksonville is the first hub. Other cities in this preview are example hubs so the filters have something to show.",
+    text: "Sample local story: Jacksonville is the first hub. Searching by city, ZIP and format is free. VIP is for private games and alerts.",
     likes: 61,
     liked: false,
     sample: true,
   },
   {
     id: "post-3",
+    authorId: "host-jax-b",
+    authorHandle: "example-host-jax",
     who: "Example Host Jax",
     role: "Host",
     city: "Jacksonville",
@@ -308,11 +488,37 @@ const posts: Post[] = [
   },
   {
     id: "post-4",
+    authorId: "host-mia",
+    authorHandle: "sample-host-mia",
     who: "Sample Host Miami",
     role: "Host",
     city: "Miami",
     text: "Example hub: Saturday morning 7s has six names on the sheet. (Sample post.)",
     likes: 8,
+    liked: false,
+    sample: true,
+  },
+  {
+    id: "post-a",
+    authorId: "player-a",
+    authorHandle: "river",
+    who: "Sample Player River",
+    role: "Player",
+    city: "Jacksonville",
+    text: "Looking for one more for Wednesday 5s. (Sample player post.)",
+    likes: 4,
+    liked: false,
+    sample: true,
+  },
+  {
+    id: "post-d",
+    authorId: "player-d",
+    authorHandle: "jordan",
+    who: "Sample Player Jordan",
+    role: "Player",
+    city: "Atlanta",
+    text: "Example-hub post: Thursday daylight 5s is on. (Sample.)",
+    likes: 3,
     liked: false,
     sample: true,
   },
@@ -360,6 +566,8 @@ const products: Product[] = [
     vendorId: "vendor-a",
     price: 24,
     tile: "Ball",
+    url: "https://example.com/sample-vendor/ball",
+    kind: "affiliate",
     sample: true,
   },
   {
@@ -368,6 +576,8 @@ const products: Product[] = [
     vendorId: "vendor-d",
     price: 32,
     tile: "Bibs",
+    url: "https://example.com/example-bibs",
+    kind: "affiliate",
     sample: true,
   },
   {
@@ -376,6 +586,8 @@ const products: Product[] = [
     vendorId: "vendor-b",
     price: 68,
     tile: "Boots",
+    url: "https://example.com/example-boot-room",
+    kind: "affiliate",
     sample: true,
   },
   {
@@ -384,6 +596,8 @@ const products: Product[] = [
     vendorId: "vendor-a",
     price: 45,
     tile: "Goals",
+    url: "https://example.com/sample-vendor/goals",
+    kind: "affiliate",
     sample: true,
   },
   {
@@ -392,16 +606,126 @@ const products: Product[] = [
     vendorId: "vendor-c",
     price: 29,
     tile: "Gloves",
+    url: "https://example.com/sample-goods/gloves",
+    kind: "affiliate",
     sample: true,
   },
   {
     id: "prod-6",
-    name: "Flat cones, set of 40",
-    vendorId: "vendor-d",
-    price: 14,
-    tile: "Cones",
+    name: "Maletas match tee (coming)",
+    vendorId: "vendor-c",
+    price: 28,
+    tile: "Merch",
+    url: "",
+    kind: "merch",
     sample: true,
   },
+];
+
+const listings: ExternalListing[] = [
+  {
+    id: "list-jax-pickup",
+    title: "Sample municipal pickup board",
+    kind: "public-pickup",
+    sourceName: "Example city parks bulletin (sample source)",
+    sourceUrl: "https://example.com/sample-city-parks",
+    lastChecked: "2026-11-20",
+    city: "Jacksonville",
+    zip: "32204",
+    format: "7v7",
+    when: "Sat mornings",
+    notes: "Fictitious directory row so the UI has a “listed from the web” card. Not a real league or partnership.",
+    sample: true,
+  },
+  {
+    id: "list-jax-league",
+    title: "Example adult rec league directory",
+    kind: "league",
+    sourceName: "Sample league directory (not a real org)",
+    sourceUrl: "https://example.com/sample-league-directory",
+    lastChecked: "2026-11-18",
+    city: "Jacksonville",
+    zip: "32216",
+    format: "11v11",
+    when: "Weeknights",
+    notes: "Sample listing collated by ZIP. Maletas does not run this league.",
+    sample: true,
+  },
+  {
+    id: "list-mia-club",
+    title: "Sample club night listing",
+    kind: "club",
+    sourceName: "Example club site (sample source)",
+    sourceUrl: "https://example.com/sample-club",
+    lastChecked: "2026-11-12",
+    city: "Miami",
+    zip: "33130",
+    format: "5v5",
+    when: "Thu 18:00",
+    notes: "Example-hub row. Not a real club and not a Maletas partner.",
+    sample: true,
+  },
+  {
+    id: "list-atl-park",
+    title: "Example public park kickabout",
+    kind: "public-pickup",
+    sourceName: "Sample parks page (not a real department)",
+    sourceUrl: "https://example.com/sample-atlanta-parks",
+    lastChecked: "2026-11-15",
+    city: "Atlanta",
+    zip: "30318",
+    format: "5v5",
+    when: "Sat 10:00",
+    notes: "Listed from the web so players can leave Maletas and read the source terms.",
+    sample: true,
+  },
+];
+
+const ads: Ad[] = [
+  {
+    id: "ad-banner",
+    placement: "banner",
+    advertiser: "Sample Neighborhood Pitch Co.",
+    headline: "Local fields looking for weekday 7s",
+    blurb: "A labelled sample banner for a local field operator. Not a real sponsor.",
+    href: "/advertise",
+    sample: true,
+  },
+  {
+    id: "ad-games-pub",
+    placement: "games",
+    advertiser: "Example Southside Shop",
+    headline: "Match-day gear around the corner",
+    blurb: "Sample local shop card in the games list. Not a real partner.",
+    href: "/shop",
+    sample: true,
+  },
+  {
+    id: "ad-feed",
+    placement: "feed",
+    advertiser: "Example Bibs Co.",
+    headline: "Ten numbered bibs, one bag",
+    blurb: "Sponsored placements like this one help keep search free. Sample listing.",
+    href: "/shop",
+    sample: true,
+  },
+  {
+    id: "ad-games-field",
+    placement: "games",
+    advertiser: "Sample Local Sponsor",
+    headline: "Your pitch, pub or shop here",
+    blurb: "Advertise with Maletas — fields, pubs and shops. Sample card.",
+    href: "/advertise",
+    sample: true,
+  },
+];
+
+const friendships: Friendship[] = [
+  { id: "fr-1", fromId: "player-dave", toId: "player-a", status: "accepted" },
+  { id: "fr-2", fromId: "player-dave", toId: "player-b", status: "accepted" },
+  { id: "fr-3", fromId: "player-a", toId: "player-b", status: "accepted" },
+  { id: "fr-4", fromId: "player-a", toId: "player-c", status: "pending" },
+  { id: "fr-5", fromId: "player-e", toId: "player-d", status: "accepted" },
 ];
 
 export const WEEKS_PLAYERS = [
@@ -411,22 +735,25 @@ export const WEEKS_HOSTS = [9, 11, 12, 14, 15, 18, 20, 23, 25, 29, 32, 36];
 
 export const BASE_ADMIN: Omit<
   AdminSnapshot,
-  "plusRevenue" | "shopCommission" | "weeksPlayers" | "weeksHosts" | "sample"
+  "vipRevenue" | "shopCommission" | "weeksPlayers" | "weeksHosts" | "sample"
 > = {
   players: 4180,
   hosts: 312,
   inviteJoinRate: 1.18,
-  plusSubscribers: 610,
+  vipSubscribers: 610,
 };
 
 export const SEED_GAMES = games;
 export const SEED_HOSTS = hosts;
 export const SEED_PRODUCTS = products;
 export const SEED_VENDORS = vendors;
+export const SEED_PLAYERS = players;
+export const SEED_LISTINGS = listings;
+export const SEED_ADS = ads;
 
 export function createSeedState(): PlayState {
   return {
-    version: 1,
+    version: 2,
     user: null,
     newsletter: false,
     city: "All",
@@ -438,9 +765,19 @@ export function createSeedState(): PlayState {
     vendors: structuredClone(vendors),
     hosts: structuredClone(hosts),
     products: structuredClone(products),
+    players: structuredClone(players),
+    listings: structuredClone(listings),
+    ads: structuredClone(ads),
+    friendships: structuredClone(friendships),
+    blocks: [],
+    reports: [],
     referralCounts: {},
     pendingReferral: null,
     waivers: [],
     demoAdmin: false,
+    hostEmailOptIn: false,
+    alertRadius: false,
+    alertMatches: false,
+    alertWatch: false,
   };
 }

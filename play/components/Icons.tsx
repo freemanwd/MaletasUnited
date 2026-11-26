@@ -46,7 +46,13 @@ export function currentTab(pathname: string): string {
   if (pathname.startsWith("/hosts") || pathname.startsWith("/games/new")) return "hosts";
   if (pathname.startsWith("/clubhouse")) return "feed";
   if (pathname.startsWith("/shop")) return "shop";
-  if (pathname.startsWith("/me") || pathname.startsWith("/plus") || pathname.startsWith("/join"))
+  if (
+    pathname.startsWith("/me") ||
+    pathname.startsWith("/plus") ||
+    pathname.startsWith("/vip") ||
+    pathname.startsWith("/join") ||
+    pathname.startsWith("/players")
+  )
     return "me";
   if (pathname.startsWith("/admin")) return "admin";
   return "games";

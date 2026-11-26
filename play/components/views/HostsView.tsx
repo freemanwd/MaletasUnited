@@ -23,8 +23,8 @@ export function HostsView() {
         </button>
       </div>
       <p className="muted">
-        Hosts own the field time. They set the format, the fee and how often it repeats
-        (one-off, weekly, or every 2 weeks), and Maletas fills the sheet.
+        Maletas is a matchmaker, not a host. Each host sets visibility, their own fee (paid
+        directly to them for now), their own terms and waiver. You, not Maletas, run the field.
       </p>
       <div className="grid">
         {state.hosts.map((host) => {

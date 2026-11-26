@@ -35,7 +35,7 @@ export function AdminView() {
       </div>
       <div className="banner">
         In production this view is limited to you and the admins you name, using roles in Clerk
-        (player, host, admin). Sign-ups, Plus and commission below update as you use this preview.
+        (player, host, admin). Sign-ups, VIP and commission below update as you use this preview.
         {!isAdmin ? (
           <>
             {" "}
@@ -62,12 +62,12 @@ export function AdminView() {
           <span>Invites that join, per user</span>
         </div>
         <div className="kpi">
-          <b className="num">{snap.plusSubscribers}</b>
-          <span>Plus subscribers</span>
+          <b className="num">{snap.vipSubscribers}</b>
+          <span>VIP subscribers</span>
         </div>
         <div className="kpi">
-          <b className="num">{money(snap.plusRevenue)}</b>
-          <span>Plus revenue per month</span>
+          <b className="num">{money(snap.vipRevenue)}</b>
+          <span>VIP revenue per month</span>
         </div>
         <div className="kpi">
           <b className="num">{money(cut)}</b>

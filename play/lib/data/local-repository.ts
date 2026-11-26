@@ -5,19 +5,25 @@ import {
   makeInviteCode,
   rolesFromLabel,
   shortName,
+  uniqueHandle,
   zipPrefix,
 } from "../format";
-import type {
-  AdminSnapshot,
-  CreateGameInput,
-  Game,
-  GameFilters,
-  PlayState,
-  ProfileInput,
-  SessionUser,
-  WaiverAck,
+import {
+  MATCHMAKER_NOTICE_VERSION,
+  WAIVER_VERSION,
+  type AdminSnapshot,
+  type CreateGameInput,
+  type DirectoryPlayer,
+  type ExternalListing,
+  type Game,
+  type GameFilters,
+  type PlayState,
+  type ProfileInput,
+  type SessionUser,
+  type VipPlan,
+  type WaiverAck,
 } from "../types";
-import { WAIVER_VERSION } from "../types";
+import { canJoinGame, hashText } from "../visibility";
 import type { DataRepository } from "./repository";
 import { getPlaySnapshot, mutatePlay } from "./client-store";
 import { BASE_ADMIN, WEEKS_HOSTS, WEEKS_PLAYERS } from "./seed";
@@ -48,12 +54,15 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
         "Maletas games are not scheduled on Sundays. Pick a Saturday morning or a weeknight while there is daylight.",
       );
     }
+    const hide = Boolean(input.hideAddressUntilApproved);
     const game: Game = {
       id: `g-${Date.now()}`,
       title: input.title,
       hostId: host.id,
       hostName: host.name,
       field: input.field,
+      fieldPrivate: input.fieldPrivate,
+      hideAddressUntilApproved: hide,
       city: input.city,
       country: "",
       zip: input.zip,
@@ -64,7 +73,15 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       repeat: input.repeat,
       spots: Math.max(2, Math.min(40, input.spots || 10)),
       fee: input.fee || "Free",
+      feePaidToHost: Boolean(input.feePaidToHost) && (input.fee || "Free") !== "Free",
+      visibility: input.visibility,
+      hostTerms: input.hostTerms,
+      hostWaiver: input.hostWaiver,
+      inviteCode: host.profile.inviteCode,
+      approvedIds: [host.id],
+      pendingIds: [],
       roster: [shortName(host.name)],
+      rosterIds: [host.id],
       sample: false,
     };
     this.update((prev) => ({
@@ -79,6 +96,8 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       posts: [
         {
           id: `p-${Date.now()}`,
+          authorId: host.id,
+          authorHandle: host.profile.handle,
           who: host.name,
           role: "Host",
           city: input.city,
@@ -93,17 +112,27 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     return game;
   }
 
-  async joinGame(
-    id: string,
-    user: SessionUser,
-    waiver: WaiverAck,
-  ): Promise<Game> {
+  async joinGame(id: string, user: SessionUser, waiver: WaiverAck): Promise<Game> {
     if (waiver.version !== WAIVER_VERSION) {
       throw new Error("Please accept the current play-at-your-own-risk waiver.");
+    }
+    if (waiver.matchmakerVersion !== MATCHMAKER_NOTICE_VERSION) {
+      throw new Error("Please accept the matchmaker notice.");
     }
     const mine = shortName(user.name);
     const current = this.getState().games.find((game) => game.id === id);
     if (!current) throw new Error("Game not found.");
+    if (hashText(current.hostWaiver) !== waiver.hostWaiverHash) {
+      throw new Error("Please accept this host’s current waiver.");
+    }
+    const access = canJoinGame(current, user);
+    if (!access.ok && access.reason !== "") {
+      if (access.reason === "vip") throw new Error("This game is for Maletas VIP members.");
+      if (access.reason === "invite") throw new Error("This game is invite-only. Request a spot first.");
+      if (access.reason === "pending") throw new Error("The host has not approved you yet.");
+      if (access.reason === "full") throw new Error("That sheet is full.");
+      if (access.reason === "signin") throw new Error("Create a profile first.");
+    }
     if (current.roster.length >= current.spots && !current.roster.includes(mine)) {
       throw new Error("That sheet is full.");
     }
@@ -111,11 +140,21 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     this.update((prev) => {
       const games = prev.games.map((game) => {
         if (game.id !== id) return game;
-        if (game.roster.includes(mine)) {
+        if (game.roster.includes(mine) || game.rosterIds.includes(user.id)) {
           joined = game;
           return game;
         }
-        joined = { ...game, roster: [...game.roster, mine] };
+        joined = {
+          ...game,
+          roster: [...game.roster, mine],
+          rosterIds: game.rosterIds.includes(user.id)
+            ? game.rosterIds
+            : [...game.rosterIds, user.id],
+          approvedIds: game.approvedIds.includes(user.id)
+            ? game.approvedIds
+            : [...game.approvedIds, user.id],
+          pendingIds: game.pendingIds.filter((pid) => pid !== user.id),
+        };
         return joined;
       });
       return {
@@ -137,7 +176,11 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       ...prev,
       games: prev.games.map((game) => {
         if (game.id !== id) return game;
-        left = { ...game, roster: game.roster.filter((name) => name !== mine) };
+        left = {
+          ...game,
+          roster: game.roster.filter((name) => name !== mine),
+          rosterIds: game.rosterIds.filter((pid) => pid !== user.id),
+        };
         return left;
       }),
     }));
@@ -145,8 +188,75 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     return left;
   }
 
+  async requestJoin(id: string, user: SessionUser): Promise<Game> {
+    let next: Game | null = null;
+    this.update((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== id) return game;
+        if (game.approvedIds.includes(user.id) || game.rosterIds.includes(user.id)) {
+          next = game;
+          return game;
+        }
+        next = {
+          ...game,
+          pendingIds: game.pendingIds.includes(user.id)
+            ? game.pendingIds
+            : [...game.pendingIds, user.id],
+        };
+        return next;
+      }),
+    }));
+    if (!next) throw new Error("Game not found.");
+    return next;
+  }
+
+  async approveJoin(id: string, playerId: string, host: SessionUser): Promise<Game> {
+    let next: Game | null = null;
+    this.update((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== id) return game;
+        if (game.hostId !== host.id && game.hostName !== host.name) return game;
+        const player = prev.players.find((row) => row.id === playerId);
+        const name = player ? shortName(player.name) : playerId;
+        next = {
+          ...game,
+          pendingIds: game.pendingIds.filter((pid) => pid !== playerId),
+          approvedIds: game.approvedIds.includes(playerId)
+            ? game.approvedIds
+            : [...game.approvedIds, playerId],
+          roster: game.roster.includes(name) ? game.roster : [...game.roster, name],
+          rosterIds: game.rosterIds.includes(playerId)
+            ? game.rosterIds
+            : [...game.rosterIds, playerId],
+        };
+        return next;
+      }),
+    }));
+    if (!next) throw new Error("Game not found or you are not the host.");
+    return next;
+  }
+
   async listHosts() {
     return this.getState().hosts;
+  }
+
+  async listListings(filters: GameFilters) {
+    return filterListings(this.getState().listings, filters);
+  }
+
+  async listAds() {
+    return this.getState().ads;
+  }
+
+  async listPlayers() {
+    return this.getState().players;
+  }
+
+  async getPlayerByHandle(handle: string) {
+    const key = handle.toLowerCase();
+    return this.getState().players.find((player) => player.handle.toLowerCase() === key) ?? null;
   }
 
   async listPosts() {
@@ -156,6 +266,8 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
   async createPost(text: string, user: SessionUser) {
     const post = {
       id: `p-${Date.now()}`,
+      authorId: user.id,
+      authorHandle: user.profile.handle,
       who: user.name,
       role: user.roles.includes("host") ? ("Host" as const) : ("Player" as const),
       city: user.profile.city,
@@ -220,13 +332,23 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     return cart;
   }
 
-  async setPlus(enabled: boolean) {
+  async setVip(plan: VipPlan | null) {
     this.update((prev) => ({
       ...prev,
-      user: prev.user ? { ...prev.user, plus: enabled } : prev.user,
-      zip: enabled ? prev.zip : "",
+      user: prev.user
+        ? { ...prev.user, vip: Boolean(plan), vipPlan: plan }
+        : prev.user,
     }));
-    return enabled;
+    return Boolean(plan);
+  }
+
+  async setVipAlerts(patch: {
+    hostEmailOptIn?: boolean;
+    alertRadius?: boolean;
+    alertMatches?: boolean;
+    alertWatch?: boolean;
+  }) {
+    this.update((prev) => ({ ...prev, ...patch }));
   }
 
   async setFilters(patch: Partial<GameFilters> & { zip?: string }) {
@@ -263,6 +385,107 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     }));
   }
 
+  async sendFriendRequest(fromId: string, toId: string) {
+    if (fromId === toId) return;
+    this.update((prev) => {
+      const existing = prev.friendships.find(
+        (row) =>
+          (row.fromId === fromId && row.toId === toId) ||
+          (row.fromId === toId && row.toId === fromId),
+      );
+      if (existing) {
+        if (existing.status === "accepted") return prev;
+        if (existing.toId === fromId) {
+          return {
+            ...prev,
+            friendships: prev.friendships.map((row) =>
+              row.id === existing.id ? { ...row, status: "accepted" as const } : row,
+            ),
+          };
+        }
+        return prev;
+      }
+      return {
+        ...prev,
+        friendships: [
+          ...prev.friendships,
+          { id: `fr-${Date.now()}`, fromId, toId, status: "pending" as const },
+        ],
+      };
+    });
+  }
+
+  async acceptFriendRequest(userId: string, otherId: string) {
+    this.update((prev) => ({
+      ...prev,
+      friendships: prev.friendships.map((row) =>
+        row.status === "pending" &&
+        ((row.fromId === otherId && row.toId === userId) ||
+          (row.fromId === userId && row.toId === otherId))
+          ? { ...row, status: "accepted" as const }
+          : row,
+      ),
+    }));
+  }
+
+  async unfriend(userId: string, otherId: string) {
+    this.update((prev) => ({
+      ...prev,
+      friendships: prev.friendships.filter(
+        (row) =>
+          !((row.fromId === userId && row.toId === otherId) ||
+            (row.fromId === otherId && row.toId === userId)),
+      ),
+    }));
+  }
+
+  async blockPlayer(blockerId: string, blockedId: string) {
+    this.update((prev) => ({
+      ...prev,
+      blocks: prev.blocks.some(
+        (row) => row.blockerId === blockerId && row.blockedId === blockedId,
+      )
+        ? prev.blocks
+        : [...prev.blocks, { blockerId, blockedId }],
+      friendships: prev.friendships.filter(
+        (row) =>
+          !((row.fromId === blockerId && row.toId === blockedId) ||
+            (row.fromId === blockedId && row.toId === blockerId)),
+      ),
+    }));
+  }
+
+  async unblockPlayer(blockerId: string, blockedId: string) {
+    this.update((prev) => ({
+      ...prev,
+      blocks: prev.blocks.filter(
+        (row) => !(row.blockerId === blockerId && row.blockedId === blockedId),
+      ),
+    }));
+  }
+
+  async reportTarget(
+    reporterId: string,
+    targetType: "player" | "post" | "game",
+    targetId: string,
+    reason: string,
+  ) {
+    this.update((prev) => ({
+      ...prev,
+      reports: [
+        ...prev.reports,
+        {
+          id: `rp-${Date.now()}`,
+          reporterId,
+          targetType,
+          targetId,
+          reason,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    }));
+  }
+
   async getSession() {
     return this.getState().user;
   }
@@ -270,14 +493,19 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
   async register(input: ProfileInput): Promise<SessionUser> {
     const prev = this.getState();
     const referredBy = prev.pendingReferral;
+    const taken = new Set(prev.players.map((player) => player.handle.toLowerCase()));
+    const handle = uniqueHandle(input.handle || input.name, taken);
+    const id = `u-${Date.now()}`;
     const user: SessionUser = {
-      id: `u-${Date.now()}`,
+      id,
       name: input.name,
       email: null,
       imageUrl: null,
       roles: rolesFromLabel(input.rolesLabel),
-      plus: false,
+      vip: false,
+      vipPlan: null,
       profile: {
+        handle,
         city: input.city,
         zip: input.zip,
         position: input.position,
@@ -286,9 +514,21 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
         inviteCode: makeInviteCode(input.name),
         invites: 0,
         referredBy,
+        privacy: input.privacy,
       },
     };
-    this.update((state) => applyReferralJoin({ ...state, user, pendingReferral: null }, referredBy));
+    const card = directoryFromUser(user);
+    this.update((state) =>
+      applyReferralJoin(
+        {
+          ...state,
+          user,
+          pendingReferral: null,
+          players: [...state.players.filter((row) => row.id !== id), card],
+        },
+        referredBy,
+      ),
+    );
     return user;
   }
 
@@ -296,23 +536,36 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     const prev = this.getState();
     if (!prev.user) throw new Error("Not signed in.");
     const oldShort = shortName(prev.user.name);
+    const taken = new Set(
+      prev.players
+        .filter((player) => player.id !== prev.user?.id)
+        .map((player) => player.handle.toLowerCase()),
+    );
+    const handle = uniqueHandle(input.handle || input.name, taken);
     const next: SessionUser = {
       ...prev.user,
       name: input.name,
       roles: rolesFromLabel(input.rolesLabel),
       profile: {
         ...prev.user.profile,
+        handle,
         city: input.city,
         zip: input.zip,
         position: input.position,
         bio: input.bio,
         social: sanitizeSocial(input.social),
+        privacy: input.privacy,
       },
     };
     const newShort = shortName(next.name);
+    const card = directoryFromUser(next);
     this.update((state) => ({
       ...state,
       user: next,
+      players: [
+        ...state.players.filter((row) => row.id !== next.id && row.handle !== handle),
+        card,
+      ],
       games: state.games.map((game) => ({
         ...game,
         hostName: game.hostName === prev.user?.name ? next.name : game.hostName,
@@ -364,11 +617,24 @@ export function filterGames(games: Game[], filters: GameFilters): Game[] {
   });
 }
 
+export function filterListings(
+  listings: ExternalListing[],
+  filters: GameFilters,
+): ExternalListing[] {
+  const prefix = zipPrefix(filters.zipPrefix);
+  return listings.filter((row) => {
+    if (filters.city !== "All" && row.city !== filters.city) return false;
+    if (filters.format !== "All" && row.format !== filters.format) return false;
+    if (prefix && zipPrefix(row.zip) !== prefix) return false;
+    return true;
+  });
+}
+
 export function adminSnapshot(state: PlayState): AdminSnapshot {
   const user = state.user;
   let players = BASE_ADMIN.players;
   let hosts = BASE_ADMIN.hosts;
-  let plusSubscribers = BASE_ADMIN.plusSubscribers;
+  let vipSubscribers = BASE_ADMIN.vipSubscribers;
   const weeksPlayers = [...WEEKS_PLAYERS];
   const weeksHosts = [...WEEKS_HOSTS];
   if (user) {
@@ -376,17 +642,21 @@ export function adminSnapshot(state: PlayState): AdminSnapshot {
     if (user.roles.includes("host")) hosts += 1;
     weeksPlayers[11] = (weeksPlayers[11] ?? 0) + 1;
   }
-  if (user?.plus) plusSubscribers += 1;
+  if (user?.vip) vipSubscribers += 1;
   const shopCommission = state.vendors.reduce(
     (sum, vendor) => sum + (vendor.gmv * vendor.rate) / 100,
     0,
   );
+  const vipRevenue =
+    user?.vipPlan === "yearly"
+      ? (vipSubscribers - 1) * 1.99 + 20 / 12
+      : vipSubscribers * 1.99;
   return {
     players,
     hosts,
     inviteJoinRate: BASE_ADMIN.inviteJoinRate,
-    plusSubscribers,
-    plusRevenue: plusSubscribers * 1.99,
+    vipSubscribers,
+    vipRevenue,
     shopCommission,
     weeksPlayers,
     weeksHosts,
@@ -399,21 +669,25 @@ function sanitizeSocial(value: string): string {
   return /^https?:\/\//i.test(value) ? value : "";
 }
 
+function directoryFromUser(user: SessionUser): DirectoryPlayer {
+  return {
+    id: user.id,
+    handle: user.profile.handle,
+    name: user.name,
+    city: user.profile.city,
+    zip: user.profile.zip,
+    position: user.profile.position,
+    bio: user.profile.bio,
+    social: user.profile.social,
+    roles: user.roles,
+    privacy: user.profile.privacy,
+    sample: false,
+  };
+}
+
 function applyReferralJoin(state: PlayState, code: string | null): PlayState {
   if (!code) return state;
   const counts = { ...state.referralCounts };
   counts[code] = (counts[code] ?? 0) + 1;
-  const user = state.user
-    ? {
-        ...state.user,
-        profile: {
-          ...state.user.profile,
-          invites:
-            state.user.profile.inviteCode === code
-              ? state.user.profile.invites
-              : state.user.profile.invites,
-        },
-      }
-    : state.user;
-  return { ...state, referralCounts: counts, user };
+  return { ...state, referralCounts: counts };
 }

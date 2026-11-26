@@ -2,19 +2,23 @@ export const siteConfig = {
   name: "Maletas Pickup Soccer",
   shortName: "Maletas",
   description:
-    "Pickup soccer, fútbol, football. Hosts open their fields, players put their names on the sheet, and the game is on. Jacksonville, FL is the first hub.",
-  plusPrice: "$1.99",
-  plusPeriod: "month",
+    "Maletas is a matchmaker that collates soccer opportunities around the globe. Jacksonville, FL is the first hub.",
+  vipMonthly: "$1.99",
+  vipYearly: "$20",
+  vipYearlyWas: "$23.88",
+  vipYearlySave: "$3.88",
 } as const;
 
-export const plusBenefits = [
-  "Search games by ZIP or postcode and region",
-  "Alerts when a sheet opens near you",
-  "Early access to sheets that fill fast",
+export const vipBenefits = [
+  "Access to private and invite-only hosted games",
+  "Host email lists",
+  "Radius and geographic search alerts",
+  "Match alerts when a sheet opens near you",
+  "Watch-party alerts (pub viewings of FIFA World Cup and pro league matches)",
 ] as const;
 
 export const waiverCopy = {
-  title: "Play at your own risk",
-  body: "Pickup soccer involves physical contact and a real risk of injury. Maletas is not a league and not a nonprofit. It does not provide insurance, medical coverage, or supervision. You are responsible for your own health, fitness, and gear. You play at your own risk.",
-  checkbox: "I understand I play at my own risk and still want to put my name on this sheet.",
+  title: "Host waiver and matchmaker notice",
+  checkbox:
+    "I accept this host’s waiver, I play at my own risk, and I understand Maletas is only a matchmaker (draft pending attorney review).",
 } as const;

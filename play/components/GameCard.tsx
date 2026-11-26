@@ -4,6 +4,7 @@ import Link from "next/link";
 import { repeatTag } from "@/lib/format";
 import type { Game } from "@/lib/types";
 import { usePlay } from "@/lib/play-context";
+import { canJoinGame, displayField, visibilityLabel } from "@/lib/visibility";
 import { SignUpSheet } from "./SignUpSheet";
 
 export function GameCard({
@@ -17,6 +18,7 @@ export function GameCard({
   const n = game.roster.length;
   const full = n >= game.spots;
   const me = isOnSheet(game);
+  const access = canJoinGame(game, user);
 
   async function leave() {
     if (!user) return;
@@ -24,8 +26,23 @@ export function GameCard({
     showToast(`You dropped out of ${game.title}`);
   }
 
-  function join() {
+  async function join() {
     if (requireUser()) return;
+    if (access.reason === "vip") {
+      openModal({ type: "vip" });
+      showToast("This game is for Maletas VIP members");
+      return;
+    }
+    if (access.reason === "invite") {
+      if (!user) return;
+      await repo.requestJoin(game.id, user);
+      showToast("Request sent. The host will share the field if they approve you.");
+      return;
+    }
+    if (access.reason === "pending") {
+      showToast("Waiting on the host to approve you");
+      return;
+    }
     openModal({ type: "waiver", gameId: game.id });
   }
 
@@ -35,7 +52,14 @@ export function GameCard({
         <span className={`tag ${game.repeat === "One-off" ? "" : "rec"}`}>
           {repeatTag(game.repeat)}
         </span>
-        {full ? <span className="tag full">Full</span> : <span className="tag">{game.format}</span>}
+        <span className="row">
+          {game.visibility !== "public" ? (
+            <span className={`tag ${game.visibility === "vip" ? "vip" : ""}`}>
+              {visibilityLabel(game.visibility)}
+            </span>
+          ) : null}
+          {full ? <span className="tag full">Full</span> : <span className="tag">{game.format}</span>}
+        </span>
       </div>
       {game.sample ? <span className="tag sample">Sample</span> : null}
       <h3>
@@ -43,13 +67,18 @@ export function GameCard({
       </h3>
       <div className="meta">
         <span>{game.when}</span>
-        <span>{game.field}</span>
+        <span>{displayField(game, user)}</span>
         <span>
           {game.city}
           {game.country ? `, ${game.country}` : ""} · {game.zip}
         </span>
-        <span>Host: {game.hostName}</span>
-        <span>{game.fee}</span>
+        <span>
+          Host: {game.hostName}
+        </span>
+        <span>
+          {game.fee}
+          {game.feePaidToHost ? " · paid directly to host" : ""}
+        </span>
       </div>
       <div
         className={`meter ${full ? "full" : ""}`}
@@ -75,9 +104,17 @@ export function GameCard({
               className="btn sm primary"
               type="button"
               onClick={join}
-              disabled={full}
+              disabled={full && access.ok}
             >
-              {full ? "Full" : "Add my name"}
+              {full
+                ? "Full"
+                : access.reason === "pending"
+                  ? "Requested"
+                  : access.reason === "invite"
+                    ? "Request a spot"
+                    : access.reason === "vip"
+                      ? "VIP to join"
+                      : "Add my name"}
             </button>
           )}
         </span>

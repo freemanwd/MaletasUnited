@@ -411,10 +411,15 @@ nav.main button[aria-current="page"] {
   border-color: var(--pitch);
   color: var(--pitch);
 }
-.tag.plus {
+.tag.plus,
+.tag.vip {
   background: var(--bib);
   border-color: var(--bib);
   color: var(--on-bib);
+}
+.tag.web {
+  border-color: var(--pitch);
+  color: var(--pitch);
 }
 .tag.full {
   border-color: var(--warn);
@@ -843,6 +848,41 @@ ul.clean {
   .btn:active {
     transform: scale(0.97);
   }
+}
+
+.notice,
+.legal-draft {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.legal-draft {
+  font-style: italic;
+}
+.ad-banner {
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ad-card,
+.listing-card {
+  border-style: dashed;
+}
+.site-foot {
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+.site-foot .wrap {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.site-foot a {
+  color: var(--pitch);
 }
 
 .sr-only {

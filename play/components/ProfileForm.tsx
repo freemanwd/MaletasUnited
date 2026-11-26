@@ -1,8 +1,9 @@
 "use client";
 
 import { POSITIONS } from "@/lib/types";
-import { rolesLabel } from "@/lib/format";
+import { rolesLabel, slugHandle } from "@/lib/format";
 import { usePlay } from "@/lib/play-context";
+import { MatchmakerNotice } from "./MatchmakerNotice";
 
 export function ProfileForm() {
   const { user, register, updateProfile, closeModal } = usePlay();
@@ -10,8 +11,10 @@ export function ProfileForm() {
 
   async function onSubmit(formData: FormData) {
     const social = String(formData.get("social") ?? "").trim();
+    const name = String(formData.get("name") ?? "").trim();
     const input = {
-      name: String(formData.get("name") ?? "").trim(),
+      name,
+      handle: String(formData.get("handle") ?? "").trim() || slugHandle(name),
       rolesLabel: String(formData.get("role") ?? "Player") as
         | "Player"
         | "Host"
@@ -21,6 +24,9 @@ export function ProfileForm() {
       zip: String(formData.get("zip") ?? "").trim(),
       social,
       bio: String(formData.get("bio") ?? "").trim(),
+      privacy: (String(formData.get("privacy") ?? "public") === "friends-only"
+        ? "friends-only"
+        : "public") as "public" | "friends-only",
     };
     if (editing) await updateProfile(input);
     else await register(input);
@@ -29,6 +35,7 @@ export function ProfileForm() {
   return (
     <>
       <h2>{editing ? "Edit profile" : "Join Maletas"}</h2>
+      <MatchmakerNotice variant="signup" />
       <form className="form" action={onSubmit}>
         <label htmlFor="f_name">
           Name
@@ -39,6 +46,17 @@ export function ProfileForm() {
             required
             autoComplete="name"
             defaultValue={user?.name ?? ""}
+          />
+        </label>
+        <label htmlFor="f_handle">
+          Public handle
+          <input
+            id="f_handle"
+            name="handle"
+            type="text"
+            required
+            defaultValue={user?.profile.handle ?? ""}
+            placeholder="your-name"
           />
         </label>
         <div className="two">
@@ -79,6 +97,13 @@ export function ProfileForm() {
             <input id="f_zip" name="zip" type="text" defaultValue={user?.profile.zip ?? ""} />
           </label>
         </div>
+        <label htmlFor="f_privacy">
+          Profile privacy
+          <select id="f_privacy" name="privacy" defaultValue={user?.profile.privacy ?? "public"}>
+            <option value="public">Public — anyone can read your card</option>
+            <option value="friends-only">Friends only</option>
+          </select>
+        </label>
         <label htmlFor="f_social">
           Social link
           <input
@@ -101,7 +126,7 @@ export function ProfileForm() {
         </label>
         <p className="small muted">
           Preview: your profile is saved in this browser only. Production signs people in with
-          Clerk and roles (player, host, admin).
+          Clerk and roles (player, host, admin). Public profiles live at /players/your-handle.
         </p>
         <div className="row">
           <button className="btn primary" type="submit">

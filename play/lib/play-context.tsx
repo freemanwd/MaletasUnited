@@ -20,12 +20,13 @@ import { LocalPlayStore } from "./data/local-repository";
 import type { DataRepository } from "./data/repository";
 import { shortName } from "./format";
 import type { ClerkRole, Game, PlayState, ProfileInput, SessionUser } from "./types";
-import { WAIVER_VERSION } from "./types";
+import { MATCHMAKER_NOTICE_VERSION, WAIVER_VERSION } from "./types";
+import { hashText } from "./visibility";
 
 export type ModalKind =
   | { type: "signup" }
   | { type: "host" }
-  | { type: "plus" }
+  | { type: "vip" }
   | { type: "checkout" }
   | { type: "waiver"; gameId: string }
   | null;
@@ -34,7 +35,7 @@ type PlayContextValue = {
   ready: boolean;
   state: PlayState;
   user: SessionUser | null;
-  plus: boolean;
+  vip: boolean;
   isAdmin: boolean;
   modal: ModalKind;
   toast: string;
@@ -84,7 +85,7 @@ export function PlayProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const user = state.user;
-  const plus = Boolean(user?.plus);
+  const vip = Boolean(user?.vip);
   const isAdmin = Boolean(user && (user.roles.includes("admin") || state.demoAdmin));
   const myName = user ? shortName(user.name) : "";
 
@@ -93,7 +94,7 @@ export function PlayProvider({ children }: { children: React.ReactNode }) {
       ready: true,
       state,
       user,
-      plus,
+      vip,
       isAdmin,
       modal,
       toast,
@@ -103,7 +104,11 @@ export function PlayProvider({ children }: { children: React.ReactNode }) {
       closeModal,
       showToast,
       requireUser,
-      isOnSheet: (game) => Boolean(myName && game.roster.includes(myName)),
+      isOnSheet: (game) =>
+        Boolean(
+          user &&
+            (game.rosterIds.includes(user.id) || (myName && game.roster.includes(myName))),
+        ),
       hasRole: (role) => repo.hasRole(role),
       register: async (input) => {
         await repo.register(input);
@@ -118,19 +123,23 @@ export function PlayProvider({ children }: { children: React.ReactNode }) {
       joinWithWaiver: async (gameId) => {
         const current = getPlaySnapshot().user;
         if (!current) throw new Error("Not signed in.");
-        const game = await repo.joinGame(gameId, current, {
+        const game = getPlaySnapshot().games.find((item) => item.id === gameId);
+        if (!game) throw new Error("Game not found.");
+        const joined = await repo.joinGame(gameId, current, {
           version: WAIVER_VERSION,
+          matchmakerVersion: MATCHMAKER_NOTICE_VERSION,
           acceptedAt: new Date().toISOString(),
           gameId,
+          hostWaiverHash: hashText(game.hostWaiver),
         });
         closeModal();
-        return game;
+        return joined;
       },
     }),
     [
       state,
       user,
-      plus,
+      vip,
       isAdmin,
       modal,
       toast,
