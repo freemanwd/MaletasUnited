@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-pitch: #10261c;
+  --color-pitch-deep: #0b1a13;
+  --color-turf: #1f6b45;
+  --color-turf-bright: #2f8a58;
+  --color-lime: #d5e89a;
+  --color-cream: #f4ead8;
+  --color-paper: #fffaf2;
+  --color-leather: #9a4d2e;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e8d48a;
+  --color-ink: #1c1916;
+  --color-ink-soft: #4a453e;
+  --color-mist: #dce6d8;
+  --font-sans: var(--font-source-sans);
+  --font-display: var(--font-fraunces);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-pitch);
+}
+
+.pitch-stripes {
+  background-color: var(--color-pitch);
+  background-image:
+    radial-gradient(1200px 480px at 50% -10%, rgba(201, 162, 39, 0.18), transparent 55%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 56px,
+      rgba(255, 255, 255, 0.035) 56px 58px
+    );
+}
+
+.paper-grain {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(rgba(28, 25, 22, 0.04) 0.6px, transparent 0.6px),
+    linear-gradient(180deg, #fffdf8, var(--color-paper));
+  background-size:
+    3px 3px,
+    auto;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 80;
+  border-radius: 999px;
+  background: var(--color-gold);
+  color: var(--color-pitch);
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
