@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { InterestForm } from "@/components/InterestForm";
+import { PlayLink } from "@/components/PlayLink";
 import { moreInfoCopy } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Going global",
   description:
-    "Maletas United hopes to create a future free or low-cost host-and-player pickup soccer app — a spoke and hub model. Stay tuned. Play at your own risk.",
+    "Maletas Play is an early preview of a host-and-player pickup soccer app — a spoke and hub model. Try the beta, or email to host or play. Play at your own risk.",
   alternates: { canonical: "/going-global" },
 };
 
@@ -16,16 +17,23 @@ export default function GoingGlobalPage() {
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-leather">
-            Stay tuned
+            Early preview
           </p>
           <h1 className="mt-3 font-display text-4xl text-pitch sm:text-5xl">
             Going global
           </h1>
           <p className="mt-6 text-lg leading-relaxed">{moreInfoCopy.global}</p>
 
+          <PlayLink className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gold px-6 text-sm font-extrabold uppercase tracking-[0.08em] text-pitch">
+            {siteConfig.playNavLabel}
+            <span className="rounded-full bg-pitch px-2 py-0.5 text-[10px] font-bold normal-case tracking-wide text-gold">
+              Beta
+            </span>
+          </PlayLink>
+
           <div className="mt-8 overflow-hidden rounded-[2rem] bg-pitch p-6 text-cream">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">
-              Hub and spoke, someday
+              Hub and spoke, now in beta
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
               <div className="rounded-3xl border border-white/15 p-5">
@@ -47,9 +55,12 @@ export default function GoingGlobalPage() {
             </div>
             <p className="mt-6 text-sm text-mist">
               Ideally free or minimal cost to players and hosts. Totally “play at
-              your own risk.” There is no app yet and no waitlist backend — just
-              this note and an email.
+              your own risk.” Maletas Play is an early preview of that idea —
+              try the beta, then email if you want to host or play.
             </p>
+            <PlayLink className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-gold px-5 text-sm font-extrabold uppercase tracking-[0.08em] text-pitch">
+              Open Maletas Play
+            </PlayLink>
           </div>
         </div>
 

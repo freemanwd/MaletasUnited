@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { Crest } from "@/components/Crest";
+import { PlayLink } from "@/components/PlayLink";
 import { nav } from "@/lib/content";
+import { siteConfig } from "@/lib/site";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -42,7 +44,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 xl:flex" aria-label="Primary">
           {nav.map((item) => {
             const active =
               item.href === "/"
@@ -62,11 +64,17 @@ export function SiteHeader() {
               </Link>
             );
           })}
+          <PlayLink className="ml-1 inline-flex items-center gap-2 rounded-full bg-gold px-3.5 py-2 text-sm font-extrabold text-pitch">
+            {siteConfig.playNavLabel}
+            <span className="rounded-full bg-pitch px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
+              Beta
+            </span>
+          </PlayLink>
         </nav>
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-pitch/15 bg-paper text-pitch lg:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-pitch/15 bg-paper text-pitch xl:hidden"
           aria-expanded={open}
           aria-controls={menuId}
           onClick={() => setOpen((value) => !value)}
@@ -83,7 +91,7 @@ export function SiteHeader() {
       {open ? (
         <div
           id={menuId}
-          className="border-t border-pitch/10 bg-paper px-4 py-4 lg:hidden"
+          className="border-t border-pitch/10 bg-paper px-4 py-4 xl:hidden"
         >
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {nav.map((item) => {
@@ -104,6 +112,15 @@ export function SiteHeader() {
                 </Link>
               );
             })}
+            <PlayLink
+              className="mt-2 inline-flex items-center justify-between rounded-2xl bg-gold px-4 py-3 text-base font-extrabold text-pitch"
+              onClick={() => setOpen(false)}
+            >
+              {siteConfig.playNavLabel}
+              <span className="rounded-full bg-pitch px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
+                Beta
+              </span>
+            </PlayLink>
           </nav>
         </div>
       ) : null}

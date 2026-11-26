@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Crest } from "@/components/Crest";
+import { PlayLink } from "@/components/PlayLink";
 import { homeLetter } from "@/lib/content";
+import { siteConfig } from "@/lib/site";
 
 export default function HomePage() {
   return (
@@ -26,12 +28,18 @@ export default function HomePage() {
               gentlemen. No entrance fees. Not a nonprofit. The laughter after a
               missed goal is the serious part.
             </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <PlayLink className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gold px-6 text-sm font-extrabold uppercase tracking-[0.08em] text-pitch">
+                {siteConfig.playNavLabel}
+                <span className="rounded-full bg-pitch px-2 py-0.5 text-[10px] font-bold normal-case tracking-wide text-gold">
+                  Beta
+                </span>
+              </PlayLink>
               <Link
                 href="/join"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-gold px-6 text-sm font-extrabold uppercase tracking-[0.12em] text-pitch"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-cream/30 px-6 text-sm font-bold text-cream"
               >
-                Want to play?
+                Email this Jacksonville crew
               </Link>
               <Link
                 href="/history"
@@ -138,10 +146,11 @@ export default function HomePage() {
               Going global
             </p>
             <p className="mt-2 font-display text-2xl text-pitch">
-              A future host-and-player app
+              Maletas Play is in beta
             </p>
             <p className="mt-2 text-sm text-ink-soft">
-              Hub and spoke. Free or low-cost. Stay tuned.
+              A host-and-player pickup app, early preview. Hub and spoke. Play
+              at your own risk.
             </p>
           </Link>
         </div>

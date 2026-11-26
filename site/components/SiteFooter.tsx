@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Crest } from "@/components/Crest";
+import { PlayLink } from "@/components/PlayLink";
 import { nav } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
@@ -36,6 +37,12 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <PlayLink className="hover:text-gold-soft">
+                  {siteConfig.playNavLabel}{" "}
+                  <span className="text-gold">(beta)</span>
+                </PlayLink>
+              </li>
             </ul>
           </div>
           <div>

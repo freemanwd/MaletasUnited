@@ -4,6 +4,8 @@ export const siteConfig = {
   description:
     "Maletas United is a pickup soccer group of older gentlemen in Jacksonville, FL. Games have historically been weekends — mostly Saturday mornings — plus some weeknights when there's enough daylight. No entrance fees, not a nonprofit, and no fixed schedule.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.maleta.net",
+  playUrl: process.env.NEXT_PUBLIC_PLAY_URL ?? "https://maletas-play.vercel.app",
+  playNavLabel: "Find a game / Maletas Play",
   email: "maletasunited@gmail.com",
   facebook:
     "https://www.facebook.com/profile.php?id=100064926492230",
