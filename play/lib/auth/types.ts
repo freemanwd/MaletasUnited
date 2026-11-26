@@ -8,7 +8,7 @@ import type { ClerkRole, ProfileInput, SessionUser } from "../types";
  * - `email` → `user.primaryEmailAddress?.emailAddress`
  * - `imageUrl` → `user.imageUrl`
  * - `roles` → `user.publicMetadata.roles` as `ClerkRole[]`
- * - `vip` → Stripe Billing subscription (Maletas VIP) or `publicMetadata.vip`
+ * - `vip` → Stripe Billing subscription (`TIER.productName` in `lib/tier.ts`) or `publicMetadata.vip`
  *
  * Local demo: profiles live in localStorage. `signInWithClerk` is a no-op
  * placeholder so UI can call the same surface later.
@@ -26,7 +26,7 @@ export interface AuthAdapter {
 }
 
 export const CLERK_ROLE_DOC = {
-  player: "Can join sheets, post in the clubhouse, shop, and hold VIP.",
-  host: "Can publish games (one-off, weekly, fortnightly) and manage their sheets.",
-  admin: "Can open /admin (counts, VIP revenue, vendor commission).",
+  player: "Can join sheets, post in the clubhouse, shop, and hold the paid membership tier.",
+  host: "Can publish games, set fee models, and buy guest membership vouchers.",
+  admin: "Can open /admin (counts, membership revenue, vouchers, vendor commission).",
 } as const;

@@ -1,4 +1,6 @@
+import { formatGameWhen } from "../format";
 import { DEFAULT_HOST_TERMS, DEFAULT_HOST_WAIVER } from "../legal";
+import { TIER } from "../tier";
 import type {
   Ad,
   AdminSnapshot,
@@ -7,6 +9,7 @@ import type {
   Friendship,
   Game,
   Host,
+  MembershipVoucher,
   PlayState,
   Post,
   Product,
@@ -176,11 +179,18 @@ const players: DirectoryPlayer[] = [
   },
 ];
 
-function hosted(partial: Omit<Game, "fieldPrivate" | "hideAddressUntilApproved" | "feePaidToHost" | "visibility" | "hostTerms" | "hostWaiver" | "inviteCode" | "approvedIds" | "pendingIds" | "rosterIds"> & Partial<Game>): Game {
+function hosted(partial: Omit<Game, "fieldPrivate" | "hideAddressUntilApproved" | "feePaidToHost" | "visibility" | "hostTerms" | "hostWaiver" | "inviteCode" | "approvedIds" | "pendingIds" | "rosterIds" | "timezone" | "nextDate" | "feeCadence" | "feeLabel" | "feeAmount" | "when"> & Partial<Game>): Game {
+  const nextDate = partial.nextDate ?? "";
+  const feeCadence = partial.feeCadence ?? (partial.fee && partial.fee !== "Free" ? "per-game" : "free");
+  const feeAmount = partial.feeAmount ?? (feeCadence === "free" ? "" : partial.fee ?? "");
+  const feeLabel =
+    partial.feeLabel ??
+    (feeCadence === "free" ? "Free" : feeCadence === "donation" ? "Donation" : "Match fee");
   return {
     fieldPrivate: "",
     hideAddressUntilApproved: false,
-    feePaidToHost: partial.fee !== "Free" && Boolean(partial.fee),
+    timezone: "America/New_York",
+    feePaidToHost: feeCadence !== "free",
     visibility: "public",
     hostTerms: DEFAULT_HOST_TERMS,
     hostWaiver: DEFAULT_HOST_WAIVER,
@@ -189,13 +199,29 @@ function hosted(partial: Omit<Game, "fieldPrivate" | "hideAddressUntilApproved" 
     pendingIds: [],
     rosterIds: [],
     ...partial,
+    nextDate,
+    feeCadence,
+    feeLabel,
+    feeAmount,
+    when: formatGameWhen({
+      weekday: partial.weekday,
+      kickoff: partial.kickoff,
+      repeat: partial.repeat,
+      nextDate,
+    }),
   };
 }
+
+const PITCH_PHOTO =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Sample pitch photo"><rect fill="#0f5c3a" width="400" height="240"/><rect fill="none" stroke="#f2f5ec" stroke-width="3" x="20" y="20" width="360" height="200"/><circle cx="200" cy="120" r="40" fill="none" stroke="#f2f5ec" stroke-width="2"/><line x1="200" y1="20" x2="200" y2="220" stroke="#f2f5ec" stroke-width="2"/><text x="200" y="228" text-anchor="middle" fill="#f2f5ec" font-size="12" font-family="sans-serif">Sample photo</text></svg>`,
+  );
 
 const games: Game[] = [
   hosted({
     id: "jax-glen-kernan",
-    title: "Maletas at Glen Kernan (sample VIP group)",
+    title: `Maletas at Glen Kernan (sample ${TIER.name} group)`,
     hostId: "host-dave",
     hostName: "Dave",
     field: "Private field · Glen Kernan area",
@@ -207,15 +233,17 @@ const games: Game[] = [
     zip: "32224",
     format: "11v11",
     weekday: "Sat",
-    kickoff: "09:00",
-    when: "Sat 09:00",
+    kickoff: "08:00",
     repeat: "Weekly",
+    nextDate: "2026-11-28",
     spots: 18,
     fee: "Free",
-    feePaidToHost: false,
+    feeCadence: "donation",
+    feeLabel: "Glen Kernan winter group",
+    feeAmount: "Pay what you can",
     visibility: "vip",
     hostTerms:
-      "Private regular for the Glen Kernan Maletas group. VIP members may request a spot. The host decides who plays. Address stays hidden until you are approved. Fees, if any, are paid directly to the host.",
+      `Private regular for the Glen Kernan Maletas group. ${TIER.name} members may request a spot. This Saturday, Nov 28, 2026, kick-off is 8:00 AM ET. The host decides who plays. Address stays hidden until you are approved. Fees, if any, are between host and player.`,
     hostWaiver:
       "I know this is a private pickup on a private field. I play at my own risk. Dave is the host, not Maletas. Maletas is only a matchmaker and is not organizing this game.",
     inviteCode: "GLENKERNAN",
@@ -276,7 +304,9 @@ const games: Game[] = [
     repeat: "Weekly",
     spots: 14,
     fee: "$5",
-    feePaidToHost: true,
+    feeCadence: "per-game",
+    feeLabel: "Match fee",
+    feeAmount: "$5",
     roster: [
       "Example Host Jax",
       "Sample Player Cam",
@@ -445,9 +475,11 @@ const posts: Post[] = [
     who: "Sample Host Jax",
     role: "Host",
     city: "Jacksonville",
-    text: "Saturday morning 11s is on at 09:00. Bring a light shirt and a dark shirt. (Sample post.)",
+    text: "Saturday morning 11s is on at 9:00 AM ET. Bring a light shirt and a dark shirt. (Sample post.)",
+    imageDataUrl: "",
     likes: 24,
     liked: false,
+    comments: [],
     sample: true,
   },
   {
@@ -457,9 +489,20 @@ const posts: Post[] = [
     who: "Dave",
     role: "Host",
     city: "Jacksonville",
-    text: "Glen Kernan Saturday is VIP this season. Request a spot if you have Maletas VIP and I will share the field after I approve you. (Sample post.)",
+    text: `Glen Kernan this Saturday, Nov 28, kick-off 8:00 AM ET. ${TIER.name} or a host voucher gets you a request. I will share the field after I approve you. (Sample post.)`,
+    imageDataUrl: PITCH_PHOTO,
     likes: 18,
     liked: false,
+    comments: [
+      {
+        id: "c-dave-1",
+        authorId: "player-a",
+        authorName: "Sample Player River",
+        authorHandle: "river",
+        text: "See you at 8. (Sample comment.)",
+        createdAt: "2026-11-25T14:00:00.000Z",
+      },
+    ],
     sample: true,
   },
   {
@@ -469,9 +512,11 @@ const posts: Post[] = [
     who: "Maletas Local",
     role: "News",
     city: "Jacksonville",
-    text: "Sample local story: Jacksonville is the first hub. Searching by city, ZIP and format is free. VIP is for private games and alerts.",
+    text: `Sample local story: Jacksonville is the first hub. Searching by city, ZIP and format is free. ${TIER.name} is for private games and alerts.`,
+    imageDataUrl: "",
     likes: 61,
     liked: false,
+    comments: [],
     sample: true,
   },
   {
@@ -481,9 +526,11 @@ const posts: Post[] = [
     who: "Example Host Jax",
     role: "Host",
     city: "Jacksonville",
-    text: "Friday 7s stays at 18:00 while there is still daylight. No Sunday games. (Sample post.)",
+    text: "Friday 7s stays at 6:00 PM ET while there is still daylight. No Sunday games. (Sample post.)",
+    imageDataUrl: "",
     likes: 11,
     liked: false,
+    comments: [],
     sample: true,
   },
   {
@@ -494,8 +541,10 @@ const posts: Post[] = [
     role: "Host",
     city: "Miami",
     text: "Example hub: Saturday morning 7s has six names on the sheet. (Sample post.)",
+    imageDataUrl: "",
     likes: 8,
     liked: false,
+    comments: [],
     sample: true,
   },
   {
@@ -506,8 +555,10 @@ const posts: Post[] = [
     role: "Player",
     city: "Jacksonville",
     text: "Looking for one more for Wednesday 5s. (Sample player post.)",
+    imageDataUrl: "",
     likes: 4,
     liked: false,
+    comments: [],
     sample: true,
   },
   {
@@ -518,8 +569,10 @@ const posts: Post[] = [
     role: "Player",
     city: "Atlanta",
     text: "Example-hub post: Thursday daylight 5s is on. (Sample.)",
+    imageDataUrl: "",
     likes: 3,
     liked: false,
+    comments: [],
     sample: true,
   },
 ];
@@ -728,6 +781,57 @@ const friendships: Friendship[] = [
   { id: "fr-5", fromId: "player-e", toId: "player-d", status: "accepted" },
 ];
 
+const vouchers: MembershipVoucher[] = [
+  {
+    id: "v-gk-1",
+    code: "MAL-GIFT-202628",
+    batchId: "batch-dave-gk",
+    hostId: "host-dave",
+    hostName: "Dave",
+    gameId: "jax-glen-kernan",
+    gameTitle: `Maletas at Glen Kernan (sample ${TIER.name} group)`,
+    durationMonths: 12,
+    createdAt: "2026-11-20T15:00:00.000Z",
+    paidCents: 2000,
+    redeemedById: "player-a",
+    redeemedByName: "Sample Player River",
+    redeemedAt: "2026-11-21T12:00:00.000Z",
+    sponsoredUntil: "2027-11-21T12:00:00.000Z",
+  },
+  {
+    id: "v-gk-2",
+    code: "MAL-GIFT-202629",
+    batchId: "batch-dave-gk",
+    hostId: "host-dave",
+    hostName: "Dave",
+    gameId: "jax-glen-kernan",
+    gameTitle: `Maletas at Glen Kernan (sample ${TIER.name} group)`,
+    durationMonths: 12,
+    createdAt: "2026-11-20T15:00:00.000Z",
+    paidCents: 2000,
+    redeemedById: null,
+    redeemedByName: null,
+    redeemedAt: null,
+    sponsoredUntil: null,
+  },
+  {
+    id: "v-gk-3",
+    code: "MAL-GIFT-202630",
+    batchId: "batch-dave-gk",
+    hostId: "host-dave",
+    hostName: "Dave",
+    gameId: "jax-glen-kernan",
+    gameTitle: `Maletas at Glen Kernan (sample ${TIER.name} group)`,
+    durationMonths: 12,
+    createdAt: "2026-11-20T15:00:00.000Z",
+    paidCents: 2000,
+    redeemedById: null,
+    redeemedByName: null,
+    redeemedAt: null,
+    sponsoredUntil: null,
+  },
+];
+
 export const WEEKS_PLAYERS = [
   120, 138, 151, 170, 196, 214, 240, 268, 301, 333, 372, 410,
 ];
@@ -735,12 +839,19 @@ export const WEEKS_HOSTS = [9, 11, 12, 14, 15, 18, 20, 23, 25, 29, 32, 36];
 
 export const BASE_ADMIN: Omit<
   AdminSnapshot,
-  "vipRevenue" | "shopCommission" | "weeksPlayers" | "weeksHosts" | "sample"
+  | "vipRevenue"
+  | "shopCommission"
+  | "weeksPlayers"
+  | "weeksHosts"
+  | "sample"
+  | "voucherRevenue"
 > = {
   players: 4180,
   hosts: 312,
   inviteJoinRate: 1.18,
   vipSubscribers: 610,
+  vouchersIssued: 48,
+  vouchersRedeemed: 31,
 };
 
 export const SEED_GAMES = games;
@@ -751,9 +862,11 @@ export const SEED_PLAYERS = players;
 export const SEED_LISTINGS = listings;
 export const SEED_ADS = ads;
 
+export const SEED_VOUCHERS = vouchers;
+
 export function createSeedState(): PlayState {
   return {
-    version: 2,
+    version: 3,
     user: null,
     newsletter: false,
     city: "All",
@@ -771,6 +884,7 @@ export function createSeedState(): PlayState {
     friendships: structuredClone(friendships),
     blocks: [],
     reports: [],
+    vouchers: structuredClone(vouchers),
     referralCounts: {},
     pendingReferral: null,
     waivers: [],

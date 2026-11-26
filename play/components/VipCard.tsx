@@ -2,20 +2,23 @@
 
 import Link from "next/link";
 import { usePlay } from "@/lib/play-context";
+import { membershipCaption } from "@/lib/format";
 import { siteConfig, vipBenefits } from "@/lib/site";
+import { TIER } from "@/lib/tier";
 
 export function VipCard({ compact = false }: { compact?: boolean }) {
-  const { vip, repo, showToast, openModal } = usePlay();
+  const { vip, user, repo, showToast, openModal } = usePlay();
+  const caption = membershipCaption(user);
 
   async function cancel() {
     await repo.setVip(null);
-    showToast("VIP cancelled in this demo");
+    showToast(`${TIER.name} cancelled in this demo`);
   }
 
   return (
     <div className="card">
       <div className="row between">
-        <h3>Maletas VIP</h3>
+        <h3>{TIER.productName}</h3>
         <span className="price num">
           {siteConfig.vipMonthly}
           <span className="small muted" style={{ fontFamily: "var(--body)" }}>
@@ -35,18 +38,18 @@ export function VipCard({ compact = false }: { compact?: boolean }) {
       <p className="small muted">Demo: no card is taken and nothing is charged.</p>
       {vip ? (
         <div className="row between">
-          <span className="tag vip">Active</span>
+          <span className="tag vip">{caption ?? "Active"}</span>
           <button className="btn sm" type="button" onClick={cancel}>
             Cancel
           </button>
         </div>
       ) : compact ? (
-        <Link className="btn primary" href="/vip">
-          Start VIP
+        <Link className="btn primary" href={TIER.path}>
+          Start {TIER.name}
         </Link>
       ) : (
         <button className="btn primary" type="button" onClick={() => openModal({ type: "vip" })}>
-          Start VIP
+          Start {TIER.name}
         </button>
       )}
     </div>

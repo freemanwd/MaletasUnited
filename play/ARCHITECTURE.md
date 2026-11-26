@@ -6,23 +6,28 @@ Deploy on Vercel with **Root Directory = `play`**.
 
 Maletas is **only a matchmaker**. It collates soccer opportunities around the globe. It is not a nonprofit, not a host, not a field operator, and not an organizer. Each host, field and player works out terms, fees, liability and waivers among themselves. Legal copy in the app is a **draft pending attorney review**.
 
-## This version (v2 preview)
+## This version (v3 preview)
 
-No Clerk, Stripe, or database accounts exist yet. The UI talks only to a repository interface. Checkout, VIP, ads, reports and friend requests are labelled **demo**.
+No Clerk, Stripe, or database accounts exist yet. The UI talks only to a repository interface. Checkout, membership, vouchers, ads, reports and friend requests are labelled **demo**.
+
+The paid membership **display name** is a single constant in `lib/tier.ts` (`TIER.name` is currently `VIP`, product `Maletas VIP`, path `/vip`). Rename there later (e.g. to Premium) without hunting screens. Data still uses the stable id `vip`.
+
+Kick-off times are formatted in `America/New_York` with an **ET** label (`lib/format.ts`). The sample Glen Kernan game is Saturday **Nov 28, 2026, 8:00 AM ET**.
 
 | Concern | Interface | Implementation now | Swap later |
 | --- | --- | --- | --- |
-| Data | `lib/data/repository.ts` (`DataRepository`) | `lib/data/local-repository.ts` + `localStorage` key `maletas-play-v2`, seeded from `lib/data/seed.ts` | Vercel Postgres / Neon via Prisma or Drizzle |
-| Auth | `lib/auth/types.ts` (`AuthAdapter`) — Clerk-shaped `SessionUser` with `roles: ("player" \| "host" \| "admin")[]` | Local profile form, browser-only | Clerk; map `publicMetadata.roles` |
-| Payments | VIP + merch bag labelled **demo** | `setVip("monthly" \| "yearly")` in memory; checkout button disabled | Stripe Billing (VIP monthly $1.99 / yearly $20) + Stripe Connect (optional merch) |
-| Search | `zipPrefix` (first 3 characters) | **Free** client filter by city, ZIP, format | Geocoding + radius search. Radius *alerts* stay VIP |
-| Host terms | `Game.visibility`, `fee`, `hostTerms`, `hostWaiver`, `hideAddressUntilApproved` | Host form + waiver modal | Store per-game in Postgres; keep waiver hash + `acceptedAt` |
+| Data | `lib/data/repository.ts` (`DataRepository`) | `lib/data/local-repository.ts` + `localStorage` key `maletas-play-v3`, seeded from `lib/data/seed.ts` | Vercel Postgres / Neon via Prisma or Drizzle |
+| Auth | `lib/auth/types.ts` (`AuthAdapter`) — Clerk-shaped `SessionUser` with `roles: ("player" \| "host" \| "admin")[]` | `/signup` onboarding + local profile form | Clerk; map `publicMetadata.roles` |
+| Payments | Membership + host vouchers + merch bag labelled **demo** | `setVip`, `buyVouchers`, `redeemVoucher`; checkout is a stand-in | Stripe Billing (`TIER` monthly $1.99 / yearly $20) + voucher SKUs ($20 each, bulk 10 for $180) + Stripe Connect (optional merch) |
+| Search | `zipPrefix` (first 3 characters) | **Free** client filter by city, ZIP, format | Geocoding + radius search. Radius *alerts* stay membership |
+| Host terms | Visibility, `feeCadence` / `feeLabel` / `feeAmount`, `hostTerms`, `hostWaiver`, `hideAddressUntilApproved` | Host form + waiver modal. Fees shown on game card/detail with a matchmaker disclaimer | Store per-game in Postgres; keep waiver hash + `acceptedAt`. Do not collect host fees until legal review |
+| Host vouchers | `MembershipVoucher` | Host tools at `/hosts/vouchers`: count, duration (default 1 year), game/group, QR, demo pay. Redeem on `/vip` or `/plus?voucher=`. Membership caption: “Sponsored by &lt;host&gt; until &lt;date&gt;”. Admin/host dashboards list codes | Stripe Checkout for the host; webhook marks codes paid |
 | External listings | `ExternalListing` | Seed rows labelled “listed from the web” | Ingest by ZIP (Places, directories, partner feeds) — see below |
 | Shop | `Product.kind` `affiliate` \| `merch` | Outbound/affiliate links + demo merch bag | Affiliate network + Stripe Connect merch |
-| Ads | `Ad` + `/advertise` | Labelled sample slots; VIP hides most | Direct local IO, AdSense/Ad Manager, affiliates — see below |
-| Social | `DirectoryPlayer`, `Friendship`, `BlockRecord`, `ReportRecord` | `/players/[handle]`, friends, posts, privacy | Postgres graph; Clerk user id as player id |
+| Ads | `Ad` + `/advertise` | Labelled sample slots; members see fewer | Direct local IO, AdSense/Ad Manager, affiliates — see below |
+| Social | `DirectoryPlayer`, `Friendship`, `Post` (text + demo image data URL + comments) | Join CTA, `/signup`, Clubhouse composer, nav to own `/players/[handle]`, profile posts/photos/friends | Postgres graph; Clerk user id as player id; Blob for photos |
 | Referrals | Invite code on the player card, `/join/[code]` | Count stored in `referralCounts` | Server-side attribution on Clerk sign-up |
-| Legal | `lib/legal.ts`, `/terms` | Draft notices on games, host flow, signup | Attorney-reviewed ToS; versioned acceptances |
+| Legal | `lib/legal.ts`, `/terms` | Draft notices on games, host flow, signup. `FEE_NOTICE`: fees are between host and player | Attorney-reviewed ToS; versioned acceptances |
 
 Screens are App Router routes. They import `usePlay()` / `DataRepository` methods, not `localStorage` directly, so a Postgres adapter should not require UI rewrites.
 
@@ -35,8 +40,9 @@ play/
   app/                 routes, metadata, robots (noindex)
   components/          shell, sheets, forms, views
   lib/types.ts         domain types (keep stable)
+  lib/tier.ts          paid membership display name
   lib/legal.ts         draft matchmaker copy
-  lib/visibility.ts    VIP / address / friends helpers
+  lib/visibility.ts    membership / address / friends helpers
   lib/auth/types.ts    Clerk-shaped auth adapter
   lib/data/repository.ts
   lib/data/local-repository.ts
@@ -115,7 +121,8 @@ Waiver acknowledgements (`play-at-your-own-risk-v1` + `matchmaker-draft-v1` + ho
 
 **Dashboard**
 
-- Product **Maletas VIP** with two prices: **$1.99 / month** and **$20 / year** (annual saves $3.88 vs 12 × $1.99) → copy both Price IDs
+- Product named from `TIER.productName` (currently **Maletas VIP**) with two prices: **$1.99 / month** and **$20 / year** (annual saves $3.88 vs 12 × $1.99) → copy both Price IDs
+- Host voucher SKU: **$20 / year** per guest membership, bulk **10 for $180**
 - Webhook endpoint `https://<play-host>/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `account.updated`
 - Connect: onboarding for merch vendors later; application fee = the commission % from Admin
 - Host game fees stay **paid directly to the host** until a Connect destination-charge flow exists. Do not collect host fees in Stripe until legal review.
@@ -131,7 +138,7 @@ Waiver acknowledgements (`play-at-your-own-risk-v1` + `matchmaker-draft-v1` + ho
 | `STRIPE_VIP_YEARLY_PRICE_ID` | VIP yearly |
 | `STRIPE_CONNECT_CLIENT_ID` | Connect OAuth (if used) |
 
-**Code:** `/vip` starts Checkout Session in subscription mode with the chosen price. Shop affiliate cards stay outbound links (no Stripe). Optional merch uses Connect. Mark UI copy as live only after webhooks set `user.vip` / `user.vipPlan` from Stripe, not from a local toggle.
+**Code:** `/vip` starts Checkout Session in subscription mode with the chosen price. `/hosts/vouchers` starts a one-time Checkout for N vouchers, then stores codes. Shop affiliate cards stay outbound links (no Stripe). Optional merch uses Connect. Mark UI copy as live only after webhooks set `user.vip` / `user.vipPlan` / `sponsoredBy` from Stripe, not from a local toggle. Host participation fees stay **paid directly to the host** until a Connect destination-charge flow exists.
 
 VIP perks to wire after Billing:
 
@@ -200,7 +207,7 @@ Partner/vendor cards are outbound or affiliate. Optional Maletas merch is a late
 
 ### 9. Social graph
 
-`/players/[handle]` is the public player card (bio, position, city, games played/hosted, friends, posts). Privacy is `public` or `friends-only`. Blocking removes friendships and hides posts. Reports persist in `reports` for an admin queue.
+`/players/[handle]` is the public player card (bio, position, city, games played/hosted, friends, posts, photos). Privacy is `public` or `friends-only`. Blocking removes friendships and hides posts. Reports persist in `reports` for an admin queue. Clubhouse posts may include a demo image data URL and comments. Production should store photos in Blob, not in Postgres rows.
 
 Production: unique handle constraint, rate-limit friend requests, store blocks server-side, and never show `fieldPrivate` on a profile.
 

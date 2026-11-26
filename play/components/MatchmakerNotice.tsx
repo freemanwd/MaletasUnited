@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { HOST_NOTICE, LEGAL_DRAFT_BANNER, MATCHMAKER_SHORT, SIGNUP_NOTICE } from "@/lib/legal";
+import {
+  FEE_NOTICE,
+  HOST_NOTICE,
+  LEGAL_DRAFT_BANNER,
+  MATCHMAKER_SHORT,
+  SIGNUP_NOTICE,
+} from "@/lib/legal";
 
 export function MatchmakerNotice({
   variant = "default",
@@ -7,7 +13,13 @@ export function MatchmakerNotice({
   variant?: "default" | "host" | "signup" | "game";
 }) {
   const copy =
-    variant === "host" ? HOST_NOTICE : variant === "signup" ? SIGNUP_NOTICE : MATCHMAKER_SHORT;
+    variant === "host"
+      ? HOST_NOTICE
+      : variant === "signup"
+        ? SIGNUP_NOTICE
+        : variant === "game"
+          ? `${MATCHMAKER_SHORT} ${FEE_NOTICE}`
+          : MATCHMAKER_SHORT;
   return (
     <p className="notice">
       {copy}{" "}

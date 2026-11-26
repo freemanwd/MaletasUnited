@@ -1,5 +1,7 @@
 /** Draft matchmaker copy. Pending attorney review. Do not treat as live ToS. */
 
+import { TIER } from "./tier";
+
 export const LEGAL_DRAFT_BANNER =
   "Draft pending attorney review. This is not legal advice and is not a binding terms of service until counsel signs off.";
 
@@ -11,6 +13,9 @@ export const MATCHMAKER_SHORT =
 
 export const HOST_NOTICE =
   "You, not Maletas, are the host. You set visibility, fees, terms and your own waiver. Fees are paid directly to you for now. Maletas does not run the field and is not liable for the game.";
+
+export const FEE_NOTICE =
+  "Participation fees are between host and player. Maletas is only a matchmaker and does not collect this fee.";
 
 export const SIGNUP_NOTICE =
   "By creating a profile you acknowledge that Maletas only collates opportunities. Games, fields, fees and risk sit between hosts, players and field operators. Draft pending attorney review.";
@@ -26,7 +31,7 @@ export const termsSections = [
   },
   {
     heading: "Hosts, fields and players",
-    body: "Each host, field and player works out terms, fees, liability and waivers among themselves. A host may charge a fee, keep a game public, VIP-only or invite-only, hide a field address until they approve a player, and require their own waiver. Maletas does not collect game fees in this version. Where a fee is shown, it is paid directly to the host unless a later Stripe Connect flow says otherwise.",
+    body: `Each host, field and player works out terms, fees, liability and waivers among themselves. A host may charge a fee, keep a game public, ${TIER.name}-only or invite-only, hide a field address until they approve a player, and require their own waiver. Maletas does not collect game fees in this version. Where a fee is shown, it is paid directly to the host unless a later Stripe Connect flow says otherwise.`,
   },
   {
     heading: "Play at your own risk",
@@ -37,8 +42,8 @@ export const termsSections = [
     body: "Some opportunities are labelled “listed from the web.” Those rows are pointers to third-party sources (leagues, clubs, public pickup pages). Maletas does not verify them, does not claim a partnership, and is not responsible for the source site. Always read the source’s own terms.",
   },
   {
-    heading: "VIP, shop and ads",
-    body: "Maletas VIP is an optional subscription. In this preview checkout is a demo and nothing is charged. The shop is a matchmaker marketplace: partner and vendor listings with outbound or affiliate links, plus optional Maletas merch later. Ads and local sponsorships are labelled. VIP members see fewer ads.",
+    heading: `${TIER.name}, shop and ads`,
+    body: `${TIER.productName} is an optional subscription. Hosts can also buy 1-year membership vouchers for guests. In this preview checkout is a demo and nothing is charged. The shop is a matchmaker marketplace: partner and vendor listings with outbound or affiliate links, plus optional Maletas merch later. Ads and local sponsorships are labelled. ${TIER.name} members see fewer ads.`,
   },
   {
     heading: "Accounts and conduct",

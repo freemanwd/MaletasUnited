@@ -1,4 +1,17 @@
-import type { ClerkRole, ProfileInput, Repeat, Weekday } from "./types";
+import type {
+  ClerkRole,
+  FeeCadence,
+  Game,
+  ProfileInput,
+  Repeat,
+  SessionUser,
+  Weekday,
+} from "./types";
+import { FEE_CADENCE_LABELS } from "./types";
+import { TIER } from "./tier";
+
+export const GAME_TZ = "America/New_York";
+export const GAME_TZ_LABEL = "ET";
 
 export function initials(name: string): string {
   return name
@@ -85,14 +98,50 @@ export function makeInviteCode(name: string): string {
   return `MAL-${stem}${n}`;
 }
 
+export function to12h(time: string): string {
+  const [hourRaw, minuteRaw] = time.split(":");
+  const hour = Number(hourRaw);
+  const minute = Number(minuteRaw);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return time;
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = hour % 12 || 12;
+  return `${h12}:${String(minute).padStart(2, "0")} ${ampm}`;
+}
+
+export function formatGameWhen(opts: {
+  weekday: Weekday;
+  kickoff: string;
+  repeat: Repeat;
+  nextDate?: string;
+}): string {
+  const clock = `${to12h(opts.kickoff)} ${GAME_TZ_LABEL}`;
+  if (opts.nextDate) {
+    const dt = new Date(`${opts.nextDate}T12:00:00`);
+    const datePart = Number.isNaN(dt.getTime())
+      ? opts.nextDate
+      : dt.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone: GAME_TZ,
+        });
+    const line = `${opts.weekday} ${datePart}, ${clock}`;
+    return opts.repeat === "One-off" ? line : `${line} · weekly`;
+  }
+  return `${opts.weekday} ${clock}`;
+}
+
 export function formatWhen(
   date: string,
   time: string,
   repeat: Repeat,
-): { weekday: Weekday; when: string } | null {
-  const dt = new Date(`${date}T${time}`);
+): { weekday: Weekday; when: string; nextDate: string } | null {
+  const dt = new Date(`${date}T${time}:00`);
   if (Number.isNaN(dt.getTime())) return null;
-  const weekday = dt.toLocaleDateString("en-US", { weekday: "short" });
+  const weekday = dt.toLocaleDateString("en-US", {
+    weekday: "short",
+    timeZone: GAME_TZ,
+  });
   if (weekday === "Sun") return null;
   if (
     weekday !== "Mon" &&
@@ -104,11 +153,51 @@ export function formatWhen(
   ) {
     return null;
   }
-  const when =
-    repeat === "One-off"
-      ? `${weekday} ${time}, ${dt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
-      : `${weekday} ${time}`;
-  return { weekday, when };
+  const nextDate = date;
+  return {
+    weekday,
+    nextDate,
+    when: formatGameWhen({ weekday, kickoff: time, repeat, nextDate }),
+  };
+}
+
+export function displayFee(game: Game): string {
+  const cadence = FEE_CADENCE_LABELS[game.feeCadence] ?? "";
+  if (game.feeCadence === "free") {
+    return game.feeLabel && game.feeLabel !== "Free" ? game.feeLabel : "Free";
+  }
+  const amountRaw = game.feeAmount || game.fee || "";
+  const amount = /^\d/.test(amountRaw.trim()) ? `$${amountRaw.trim()}` : amountRaw;
+  const label = game.feeLabel || cadence;
+  const parts = [label];
+  if (amount && amount !== label) parts.push(amount);
+  if (cadence && cadence !== label) parts.push(cadence.toLowerCase());
+  parts.push("paid directly to host");
+  return parts.join(" · ");
+}
+
+export function membershipCaption(user: SessionUser | null): string | null {
+  if (!user?.vip) return null;
+  if (user.sponsoredBy && user.sponsoredUntil) {
+    const until = new Date(user.sponsoredUntil);
+    const datePart = Number.isNaN(until.getTime())
+      ? user.sponsoredUntil
+      : until.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone: GAME_TZ,
+        });
+    return `Sponsored by ${user.sponsoredBy} until ${datePart}`;
+  }
+  if (user.vipPlan === "yearly") return `${TIER.productName} · yearly`;
+  if (user.vipPlan === "monthly") return `${TIER.productName} · monthly`;
+  return TIER.productName;
+}
+
+export function makeVoucherCode(): string {
+  const n = Math.floor(100000 + Math.random() * 900000);
+  return `MAL-GIFT-${n}`;
 }
 
 export function repeatTag(repeat: Repeat): string {

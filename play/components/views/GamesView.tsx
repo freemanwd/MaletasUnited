@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { filterGames, filterListings } from "@/lib/data/local-repository";
 import { SAMPLE_DISCLAIMER } from "@/lib/data/seed";
+import { GAME_TZ_LABEL } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { FORMATS } from "@/lib/types";
 import { usePlay } from "@/lib/play-context";
 import { AdSlot } from "../AdSlot";
@@ -11,7 +13,7 @@ import { ListingCard } from "../ListingCard";
 import { MatchmakerNotice } from "../MatchmakerNotice";
 
 export function GamesView() {
-  const { state, vip, repo, openModal, requireUser } = usePlay();
+  const { state, vip, user, repo, openModal, requireUser } = usePlay();
   const cities = [
     "All",
     ...Array.from(new Set([...state.games.map((game) => game.city), ...state.listings.map((row) => row.city)])),
@@ -75,18 +77,28 @@ export function GamesView() {
                 </button>
               </>
             ) : null}{" "}
-            Private games and alerts are{" "}
-            <Link href="/vip">
-              <strong>Maletas VIP</strong>
+            Kick-off times are shown in {GAME_TZ_LABEL} (America/New_York). Private games and alerts
+            are{" "}
+            <Link href={TIER.path}>
+              <strong>{TIER.productName}</strong>
             </Link>
             .
           </p>
+          {user ? null : (
+            <p>
+              <Link className="btn primary" href="/signup">
+                Join / Sign up
+              </Link>
+            </p>
+          )}
         </div>
       </section>
       <div className="wrap">
         {banner && !vip ? <AdSlot ad={banner} banner /> : null}
         {vip && banner ? (
-          <p className="small muted">VIP: fewer ads. Local sponsor banners are hidden on this view.</p>
+          <p className="small muted">
+            {TIER.name}: fewer ads. Local sponsor banners are hidden on this view.
+          </p>
         ) : null}
         <div className="row between">
           <h2>Games this week</h2>

@@ -167,12 +167,38 @@ export function PlayerProfileView({ handle }: { handle: string }) {
               <h3>Posts</h3>
               {posts.length ? (
                 posts.map((post) => (
-                  <p key={post.id}>
-                    {post.text} <span className="small muted">· {post.city}</span>
-                  </p>
+                  <div key={post.id}>
+                    <p>
+                      {post.text} <span className="small muted">· {post.city}</span>
+                    </p>
+                    {post.imageDataUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="post-photo" src={post.imageDataUrl} alt="" />
+                    ) : null}
+                    {post.comments.length ? (
+                      <p className="small muted">
+                        {post.comments.length} comment{post.comments.length === 1 ? "" : "s"}
+                      </p>
+                    ) : null}
+                  </div>
                 ))
               ) : (
                 <p className="muted">No posts yet.</p>
+              )}
+            </div>
+            <div className="card">
+              <h3>Photos</h3>
+              {posts.some((post) => post.imageDataUrl) ? (
+                <div className="photo-grid">
+                  {posts
+                    .filter((post) => post.imageDataUrl)
+                    .map((post) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="post-photo" key={post.id} src={post.imageDataUrl} alt="" />
+                    ))}
+                </div>
+              ) : (
+                <p className="muted">No photos yet.</p>
               )}
             </div>
           </div>

@@ -21,7 +21,7 @@ import type { DataRepository } from "./data/repository";
 import { shortName } from "./format";
 import type { ClerkRole, Game, PlayState, ProfileInput, SessionUser } from "./types";
 import { MATCHMAKER_NOTICE_VERSION, WAIVER_VERSION } from "./types";
-import { hashText } from "./visibility";
+import { hashText, isVip } from "./visibility";
 
 export type ModalKind =
   | { type: "signup" }
@@ -85,7 +85,7 @@ export function PlayProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const user = state.user;
-  const vip = Boolean(user?.vip);
+  const vip = isVip(user);
   const isAdmin = Boolean(user && (user.roles.includes("admin") || state.demoAdmin));
   const myName = user ? shortName(user.name) : "";
 

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { displayRole, shortName } from "@/lib/format";
+import { displayRole, membershipCaption, shortName } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { friendsOf } from "@/lib/visibility";
 import { usePlay } from "@/lib/play-context";
 import { VipCard } from "../VipCard";
@@ -18,9 +19,12 @@ export function ProfileView() {
             Create a profile to put your name on sign-up sheets, host games, add friends, and post
             in the clubhouse. It is free.
           </p>
-          <div>
-            <button className="btn primary" type="button" onClick={() => openModal({ type: "signup" })}>
-              Join Maletas
+          <div className="row">
+            <Link className="btn primary" href="/signup">
+              Join / Sign up
+            </Link>
+            <button className="btn" type="button" onClick={() => openModal({ type: "signup" })}>
+              Quick join
             </button>
           </div>
         </div>
@@ -64,16 +68,10 @@ export function ProfileView() {
             <h2>{user.name}</h2>
             <div>
               @{user.profile.handle} · {user.profile.city}
-              {user.profile.zip ? ` · ${user.profile.zip}` : ""}
-              {vip ? (
-                <>
-                  {" "}
-                  <span className="tag vip">VIP</span>
-                </>
-              ) : null}
-              {" "}
+              {user.profile.zip ? ` · ${user.profile.zip}` : ""}{" "}
               <span className="tag">{user.profile.privacy}</span>
             </div>
+            {vip ? <p className="tag vip">{membershipCaption(user) ?? TIER.name}</p> : null}
             {user.profile.bio ? <p>{user.profile.bio}</p> : null}
             {user.profile.social ? (
               <a href={user.profile.social} rel="noopener noreferrer">
@@ -130,8 +128,36 @@ export function ProfileView() {
                   </Link>
                 </div>
               ))}
+              <div>
+                <Link className="btn sm pitch" href="/hosts/vouchers">
+                  Guest {TIER.name} vouchers
+                </Link>
+              </div>
             </div>
           ) : null}
+          <div className="card">
+            <h3>Your posts</h3>
+            {state.posts.filter((post) => post.authorId === user.id).length ? (
+              state.posts
+                .filter((post) => post.authorId === user.id)
+                .map((post) => (
+                  <div key={post.id}>
+                    <p>
+                      {post.text} <span className="small muted">· {post.city}</span>
+                    </p>
+                    {post.imageDataUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="post-photo" src={post.imageDataUrl} alt="" />
+                    ) : null}
+                  </div>
+                ))
+            ) : (
+              <p className="muted">
+                No posts yet.{" "}
+                <Link href="/clubhouse">Post a thought or photo</Link>
+              </p>
+            )}
+          </div>
           <div className="card">
             <h3>Friends</h3>
             {incoming.map((row) => {

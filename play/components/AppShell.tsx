@@ -2,15 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TIER } from "@/lib/tier";
 import { usePlay } from "@/lib/play-context";
 import { currentTab, TabIcon, TABS } from "./Icons";
 import { Overlay } from "./Modals";
 
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "/";
   const tab = currentTab(pathname);
-  const { user, openModal } = usePlay();
+  const { user } = usePlay();
+  const profileHref = user?.profile.handle
+    ? `/players/${user.profile.handle}`
+    : user
+      ? "/me"
+      : "/signup";
 
   return (
     <>
@@ -24,15 +29,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Maletas
           </Link>
           <nav className="main" aria-label="Sections">
-            {TABS.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                aria-current={tab === item.id ? "page" : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {TABS.map((item) => {
+              const href = item.id === "me" ? profileHref : item.href;
+              const label = item.id === "me" && !user ? "Join" : item.label;
+              const current = item.id === "me" ? tab === "me" : tab === item.id;
+              return (
+                <Link key={item.id} href={href} aria-current={current ? "page" : undefined}>
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
           <span className="spacer" />
           <span className="row" style={{ flexWrap: "nowrap" }}>
@@ -44,10 +50,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               Admin
             </Link>
-            {user ? null : (
-              <button className="btn sm primary" type="button" onClick={() => openModal({ type: "signup" })}>
-                Join
-              </button>
+            {user ? (
+              <Link className="btn sm" href={profileHref} aria-current={tab === "me" ? "page" : undefined}>
+                @{user.profile.handle || "me"}
+              </Link>
+            ) : (
+              <Link className="btn sm primary join-cta" href="/signup" aria-label="Join / Sign up">
+                <span className="join-short">Join</span>
+                <span className="join-long">Join / Sign up</span>
+              </Link>
             )}
           </span>
         </div>
@@ -60,23 +71,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             fields or players.{" "}
             <Link href="/terms">Terms / Disclaimer</Link>
             {" · "}
-            <Link href="/vip">VIP</Link>
+            <Link href={TIER.path}>{TIER.name}</Link>
             {" · "}
             <Link href="/advertise">Advertise</Link>
           </p>
         </div>
       </footer>
       <nav className="tabbar" aria-label="Sections">
-        {TABS.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            aria-current={tab === item.id ? "page" : undefined}
-          >
-            <TabIcon name={item.id} />
-            {item.label}
-          </Link>
-        ))}
+        {TABS.map((item) => {
+          const href = item.id === "me" ? (user ? profileHref : "/signup") : item.href;
+          const label = item.id === "me" && !user ? "Join" : item.label;
+          const current = item.id === "me" ? tab === "me" : tab === item.id;
+          return (
+            <Link key={item.id} href={href} aria-current={current ? "page" : undefined}>
+              <TabIcon name={item.id} />
+              {label}
+            </Link>
+          );
+        })}
       </nav>
       <Overlay />
     </>

@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { initials } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { friendsOf, isBlocked } from "@/lib/visibility";
 import { usePlay } from "@/lib/play-context";
 import { AdSlot } from "../AdSlot";
+import { ClubhousePost } from "../ClubhousePost";
 
 export function ClubhouseView() {
   const { state, user, repo, requireUser, showToast } = usePlay();
   const [tab, setTab] = useState<"near" | "friends">("near");
+  const [preview, setPreview] = useState("");
+  const [composerKey, setComposerKey] = useState(0);
   const friendIds = user ? friendsOf(state, user.id) : [];
   const city = user?.profile.city ?? "Jacksonville";
 
@@ -25,8 +28,31 @@ export function ClubhouseView() {
   async function post(formData: FormData) {
     if (requireUser() || !user) return;
     const text = String(formData.get("text") ?? "").trim();
-    if (!text) return;
-    await repo.createPost(text, user);
+    if (!text && !preview) {
+      showToast("Write a thought or add a photo");
+      return;
+    }
+    await repo.createPost(text || "Photo", user, preview);
+    setPreview("");
+    setComposerKey((n) => n + 1);
+  }
+
+  function onPhoto(file: File | undefined) {
+    if (!file) {
+      setPreview("");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      showToast("Choose a photo (image file)");
+      return;
+    }
+    if (file.size > 1_500_000) {
+      showToast("Keep photos under 1.5 MB in this demo");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPreview(String(reader.result ?? ""));
+    reader.readAsDataURL(file);
   }
 
   async function newsletter() {
@@ -61,69 +87,44 @@ export function ClubhouseView() {
       </div>
       <div className="cols">
         <div className="stack">
-          <form className="card" action={post}>
-            <label htmlFor="postText">Post to your local clubhouse</label>
+          <form className="card composer" action={post} key={composerKey}>
+            <h3>Post a thought or photo</h3>
+            <label htmlFor="postText">What is on your mind?</label>
             <textarea
               id="postText"
               name="text"
               placeholder="Need two more for Saturday. Who is in?"
-              required
             />
+            <label htmlFor="postPhoto">
+              Photo
+              <input
+                id="postPhoto"
+                name="photo"
+                type="file"
+                accept="image/*"
+                onChange={(event) => onPhoto(event.target.files?.[0])}
+              />
+            </label>
+            {preview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="post-photo composer-photo" src={preview} alt="Selected" />
+            ) : null}
+            <p className="small muted">Photos stay in this browser as a demo data URL.</p>
             <div className="row between">
               <span className="small muted">
-                {user ? `Posting as ${user.name}` : "Join to post"}
+                {user ? (
+                  `Posting as ${user.name}`
+                ) : (
+                  <Link href="/signup">Join / Sign up to post</Link>
+                )}
               </span>
-              <button className="btn primary sm" type="submit">
+              <button className="btn primary sm" type="submit" disabled={!user}>
                 Post
               </button>
             </div>
           </form>
           {posts.length ? (
-            posts.map((item) => (
-              <article className="card post" key={item.id}>
-                <div className="hd">
-                  <div className={`av ${item.role === "Player" ? "" : "host"}`}>
-                    {initials(item.who)}
-                  </div>
-                  <div>
-                    <strong>
-                      {item.authorHandle ? (
-                        <Link href={`/players/${item.authorHandle}`}>{item.who}</Link>
-                      ) : (
-                        item.who
-                      )}
-                    </strong>
-                    <div className="small muted">
-                      {item.role} · {item.city}
-                      {item.sample ? " · sample" : ""}
-                    </div>
-                  </div>
-                </div>
-                <p>{item.text}</p>
-                <div className="row">
-                  <button
-                    className="btn sm"
-                    type="button"
-                    aria-pressed={item.liked}
-                    onClick={() => repo.toggleLike(item.id)}
-                  >
-                    {item.liked ? "Liked" : "Like"} · <span className="num">{item.likes}</span>
-                  </button>
-                  {user && item.authorId !== user.id ? (
-                    <button
-                      className="btn sm"
-                      type="button"
-                      onClick={async () => {
-                        await repo.reportTarget(user.id, "post", item.id, "Clubhouse report");
-                        showToast("Report saved in this browser (demo)");
-                      }}
-                    >
-                      Report
-                    </button>
-                  ) : null}
-                </div>
-              </article>
-            ))
+            posts.map((item) => <ClubhousePost post={item} key={item.id} />)
           ) : (
             <div className="banner">
               {tab === "friends"
@@ -143,7 +144,9 @@ export function ClubhouseView() {
             </button>
           </div>
           {feedAd && !user?.vip ? <AdSlot ad={feedAd} /> : null}
-          {user?.vip ? <p className="small muted">VIP: fewer ads in the clubhouse.</p> : null}
+          {user?.vip ? (
+            <p className="small muted">{TIER.name}: fewer ads in the clubhouse.</p>
+          ) : null}
         </aside>
       </div>
     </div>

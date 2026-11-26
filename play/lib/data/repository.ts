@@ -7,6 +7,8 @@ import type {
   Game,
   GameFilters,
   Host,
+  BuyVouchersInput,
+  MembershipVoucher,
   Post,
   Product,
   SessionUser,
@@ -38,7 +40,8 @@ export interface DataRepository {
   getPlayerByHandle(handle: string): Promise<DirectoryPlayer | null>;
 
   listPosts(): Promise<Post[]>;
-  createPost(text: string, user: SessionUser): Promise<Post>;
+  createPost(text: string, user: SessionUser, imageDataUrl?: string): Promise<Post>;
+  addComment(postId: string, text: string, user: SessionUser): Promise<Post | null>;
   toggleLike(postId: string): Promise<Post | null>;
   setNewsletter(subscribed: boolean): Promise<boolean>;
 
@@ -59,6 +62,10 @@ export interface DataRepository {
   setVendorRate(vendorId: string, rate: number): Promise<Vendor | null>;
   getAdminSnapshot(): Promise<AdminSnapshot>;
 
+  buyVouchers(input: BuyVouchersInput, host: SessionUser): Promise<MembershipVoucher[]>;
+  redeemVoucher(code: string, user: SessionUser): Promise<SessionUser>;
+  listVouchers(): Promise<MembershipVoucher[]>;
+
   setPendingReferral(code: string | null): Promise<void>;
 
   sendFriendRequest(fromId: string, toId: string): Promise<void>;
@@ -74,4 +81,4 @@ export interface DataRepository {
   ): Promise<void>;
 }
 
-export const STORAGE_KEY = "maletas-play-v2";
+export const STORAGE_KEY = "maletas-play-v3";

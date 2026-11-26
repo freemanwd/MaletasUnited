@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LEGAL_DRAFT_BANNER, MATCHMAKER_ONE_LINER, termsSections } from "@/lib/legal";
+import { TIER } from "@/lib/tier";
 
 export function TermsView() {
   return (
@@ -18,7 +19,8 @@ export function TermsView() {
       ))}
       <p className="small muted">
         Last updated for this preview. Counsel has not signed off.{" "}
-        <Link href="/advertise">Advertise with Maletas</Link> · <Link href="/vip">VIP</Link>
+        <Link href="/advertise">Advertise with Maletas</Link> ·{" "}
+        <Link href={TIER.path}>{TIER.name}</Link>
       </p>
     </div>
   );

@@ -1,7 +1,10 @@
+import { TIER } from "./tier";
 import type { DirectoryPlayer, Game, PlayState, SessionUser } from "./types";
 
 export function isVip(user: SessionUser | null | undefined): boolean {
-  return Boolean(user?.vip);
+  if (!user?.vip) return false;
+  if (user.sponsoredUntil && new Date(user.sponsoredUntil).getTime() < Date.now()) return false;
+  return true;
 }
 
 export function canSeePrivateAddress(game: Game, user: SessionUser | null): boolean {
@@ -37,7 +40,7 @@ export function canJoinGame(game: Game, user: SessionUser | null): { ok: boolean
 }
 
 export function visibilityLabel(visibility: Game["visibility"]): string {
-  if (visibility === "vip") return "VIP only";
+  if (visibility === "vip") return `${TIER.name} only`;
   if (visibility === "invite") return "Invite only";
   return "Public";
 }

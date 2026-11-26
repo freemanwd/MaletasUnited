@@ -274,6 +274,21 @@ nav.main button[aria-current="page"] {
   min-height: 34px;
   font-size: 14px;
 }
+header.top .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.join-long {
+  display: none;
+}
+@media (min-width: 760px) {
+  .join-short {
+    display: none;
+  }
+  .join-long {
+    display: inline;
+  }
+}
 .btn.block {
   width: 100%;
 }
@@ -895,4 +910,61 @@ ul.clean {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.post-photo {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--pitch);
+}
+.composer-photo {
+  max-height: 180px;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.comments {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+.comment {
+  margin: 0;
+  font-size: 14px;
+}
+.comment-form {
+  display: flex;
+  gap: 8px;
+}
+.comment-form input {
+  flex: 1;
+  min-width: 0;
+}
+.qr,
+.qr-ph {
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.voucher-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+.composer h3 {
+  margin-top: 0;
 }

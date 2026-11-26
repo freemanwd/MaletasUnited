@@ -1,14 +1,15 @@
 # Maletas Play
 
-Pickup soccer web app: a **matchmaker** that collates soccer opportunities around the globe. Games, ruled sign-up sheets, hosts, player profiles, clubhouse, marketplace shop, Maletas VIP, ads, and admin. Jacksonville, FL is the first hub.
+Pickup soccer web app: a **matchmaker** that collates soccer opportunities around the globe. Games, ruled sign-up sheets, hosts, player profiles, clubhouse, marketplace shop, paid membership (name in `lib/tier.ts`), ads, and admin. Jacksonville, FL is the first hub.
 
 This is **not** the Maletas United marketing site (`site/`) and **not** the GitHub Pages RSVP at the repo root.
 
 ## Preview (this version)
 
 - Next.js App Router, TypeScript, prototype design tokens (Big Shoulders Display, Instrument Sans, light/dark).
-- Data and auth live behind interfaces with a **localStorage** implementation (`maletas-play-v2`). No Clerk, Stripe, or database accounts yet.
-- Searching by city, ZIP and format is **free**. VIP and checkout are labelled **demo**.
+- Data and auth live behind interfaces with a **localStorage** implementation (`maletas-play-v3`). No Clerk, Stripe, or database accounts yet.
+- Searching by city, ZIP and format is **free**. Membership, host vouchers and checkout are labelled **demo**.
+- The paid tier display name is configured in `lib/tier.ts` (currently VIP). Kick-off times show in ET.
 - `robots` is `noindex`.
 - Seed data is generic and labelled sample, except Dave as host of the sample Glen Kernan VIP group. Game times: Saturday mornings plus weeknight games while there is daylight — not Sundays.
 - Signing up for a game requires the host’s waiver plus a matchmaker notice. Legal copy is a draft pending attorney review.
@@ -33,10 +34,12 @@ npm run build
 | `/games/[id]` | Game detail + sign-up sheet |
 | `/games/new` | Host a game (visibility, fee, terms, waiver) |
 | `/hosts` | Hosts and fields |
-| `/clubhouse` | Local feed (Near me / Friends) |
+| `/hosts/vouchers` | Host guest-membership vouchers (QR, demo pay) |
+| `/signup` | Join / Sign up onboarding |
+| `/clubhouse` | Local feed (thought or photo, likes, comments) |
 | `/shop` | Matchmaker marketplace (affiliate + demo merch) |
 | `/shop/bag` | Bag (demo checkout) |
-| `/vip` | Maletas VIP (demo) |
+| `/vip` | Paid membership (demo; name from `lib/tier.ts`) |
 | `/plus` | Redirects to `/vip` |
 | `/me` | Your player card |
 | `/players/[handle]` | Public player profile |

@@ -1,3 +1,5 @@
+import { TIER } from "./tier";
+
 export const siteConfig = {
   name: "Maletas Pickup Soccer",
   shortName: "Maletas",
@@ -7,6 +9,7 @@ export const siteConfig = {
   vipYearly: "$20",
   vipYearlyWas: "$23.88",
   vipYearlySave: "$3.88",
+  tier: TIER,
 } as const;
 
 export const vipBenefits = [

@@ -2,6 +2,7 @@
 
 import { adminSnapshot } from "@/lib/data/local-repository";
 import { money } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { usePlay } from "@/lib/play-context";
 
 export function AdminView() {
@@ -35,7 +36,8 @@ export function AdminView() {
       </div>
       <div className="banner">
         In production this view is limited to you and the admins you name, using roles in Clerk
-        (player, host, admin). Sign-ups, VIP and commission below update as you use this preview.
+        (player, host, admin). Sign-ups, {TIER.name}, vouchers and commission below update as you
+        use this preview.
         {!isAdmin ? (
           <>
             {" "}
@@ -63,11 +65,23 @@ export function AdminView() {
         </div>
         <div className="kpi">
           <b className="num">{snap.vipSubscribers}</b>
-          <span>VIP subscribers</span>
+          <span>{TIER.name} subscribers</span>
         </div>
         <div className="kpi">
           <b className="num">{money(snap.vipRevenue)}</b>
-          <span>VIP revenue per month</span>
+          <span>{TIER.name} revenue per month</span>
+        </div>
+        <div className="kpi">
+          <b className="num">{snap.vouchersIssued}</b>
+          <span>Vouchers issued</span>
+        </div>
+        <div className="kpi">
+          <b className="num">{snap.vouchersRedeemed}</b>
+          <span>Vouchers redeemed</span>
+        </div>
+        <div className="kpi">
+          <b className="num">{money(snap.voucherRevenue)}</b>
+          <span>Voucher revenue (demo)</span>
         </div>
         <div className="kpi">
           <b className="num">{money(cut)}</b>
@@ -180,6 +194,41 @@ export function AdminView() {
             </tbody>
           </table>
         </div>
+      </div>
+      <div className="card">
+        <h3>Host vouchers</h3>
+        {state.vouchers.length ? (
+          <div className="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Host</th>
+                  <th>Group</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.vouchers.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <span className="code">{row.code}</span>
+                    </td>
+                    <td>{row.hostName}</td>
+                    <td>{row.gameTitle ?? "Any"}</td>
+                    <td>
+                      {row.redeemedByName
+                        ? `Redeemed by ${row.redeemedByName}`
+                        : "Open"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="muted">No vouchers in this browser yet.</p>
+        )}
       </div>
       <div className="card">
         <h3>Admins</h3>

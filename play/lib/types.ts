@@ -14,9 +14,17 @@ export type Position =
   | "Forward";
 export type GameVisibility = "public" | "vip" | "invite";
 export type Privacy = "public" | "friends-only";
-export type VipPlan = "monthly" | "yearly";
+export type VipPlan = "monthly" | "yearly" | "sponsored";
 export type ListingKind = "league" | "club" | "public-pickup";
 export type AdPlacement = "feed" | "games" | "banner";
+export type FeeCadence =
+  | "per-game"
+  | "per-semester"
+  | "per-session"
+  | "per-season"
+  | "per-month"
+  | "free"
+  | "donation";
 
 export const FORMATS: Format[] = ["5v5", "7v7", "11v11"];
 export const REPEATS: Repeat[] = ["Weekly", "Every 2 weeks", "One-off"];
@@ -28,6 +36,24 @@ export const POSITIONS: Position[] = [
   "Forward",
 ];
 export const VISIBILITIES: GameVisibility[] = ["public", "vip", "invite"];
+export const FEE_CADENCES: FeeCadence[] = [
+  "free",
+  "donation",
+  "per-game",
+  "per-session",
+  "per-semester",
+  "per-season",
+  "per-month",
+];
+export const FEE_CADENCE_LABELS: Record<FeeCadence, string> = {
+  free: "Free",
+  donation: "Donation",
+  "per-game": "Per game",
+  "per-session": "Per session series",
+  "per-semester": "Per semester",
+  "per-season": "Per season",
+  "per-month": "Per month",
+};
 
 export const WAIVER_VERSION = "play-at-your-own-risk-v1" as const;
 export const MATCHMAKER_NOTICE_VERSION = "matchmaker-draft-v1" as const;
@@ -56,7 +82,7 @@ export interface PlayerProfile {
 /**
  * Session user shaped for a later Clerk swap.
  * `id` becomes the Clerk user id; `roles` maps to `publicMetadata.roles`.
- * `vip` maps to a Stripe Billing subscription (Maletas VIP).
+ * `vip` maps to a Stripe Billing subscription (`TIER.productName` in lib/tier.ts).
  */
 export interface SessionUser {
   id: string;
@@ -66,6 +92,8 @@ export interface SessionUser {
   roles: ClerkRole[];
   vip: boolean;
   vipPlan: VipPlan | null;
+  sponsoredBy: string | null;
+  sponsoredUntil: string | null;
   profile: PlayerProfile;
 }
 
@@ -101,9 +129,14 @@ export interface Game {
   weekday: Weekday;
   kickoff: string;
   when: string;
+  timezone: string;
+  nextDate: string;
   repeat: Repeat;
   spots: number;
   fee: string;
+  feeCadence: FeeCadence;
+  feeLabel: string;
+  feeAmount: string;
   feePaidToHost: boolean;
   visibility: GameVisibility;
   hostTerms: string;
@@ -136,9 +169,37 @@ export interface Post {
   role: "Host" | "Player" | "News";
   city: string;
   text: string;
+  imageDataUrl: string;
   likes: number;
   liked: boolean;
+  comments: PostComment[];
   sample: boolean;
+}
+
+export interface PostComment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorHandle: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface MembershipVoucher {
+  id: string;
+  code: string;
+  batchId: string;
+  hostId: string;
+  hostName: string;
+  gameId: string | null;
+  gameTitle: string | null;
+  durationMonths: number;
+  createdAt: string;
+  paidCents: number;
+  redeemedById: string | null;
+  redeemedByName: string | null;
+  redeemedAt: string | null;
+  sponsoredUntil: string | null;
 }
 
 export interface Vendor {
@@ -226,10 +287,19 @@ export interface CreateGameInput {
   format: Format;
   spots: number;
   fee: string;
+  feeCadence: FeeCadence;
+  feeLabel: string;
+  feeAmount: string;
   feePaidToHost: boolean;
   visibility: GameVisibility;
   hostTerms: string;
   hostWaiver: string;
+}
+
+export interface BuyVouchersInput {
+  count: number;
+  durationMonths: number;
+  gameId: string | null;
 }
 
 export interface ProfileInput {
@@ -250,6 +320,9 @@ export interface AdminSnapshot {
   inviteJoinRate: number;
   vipSubscribers: number;
   vipRevenue: number;
+  vouchersIssued: number;
+  vouchersRedeemed: number;
+  voucherRevenue: number;
   shopCommission: number;
   weeksPlayers: number[];
   weeksHosts: number[];
@@ -257,7 +330,7 @@ export interface AdminSnapshot {
 }
 
 export interface PlayState {
-  version: 2;
+  version: 3;
   user: SessionUser | null;
   newsletter: boolean;
   city: string;
@@ -275,6 +348,7 @@ export interface PlayState {
   friendships: Friendship[];
   blocks: BlockRecord[];
   reports: ReportRecord[];
+  vouchers: MembershipVoucher[];
   referralCounts: Record<string, number>;
   pendingReferral: string | null;
   waivers: WaiverAck[];

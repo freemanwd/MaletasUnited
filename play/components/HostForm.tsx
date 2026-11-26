@@ -1,19 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DEFAULT_HOST_TERMS, DEFAULT_HOST_WAIVER } from "@/lib/legal";
-import { FORMATS, REPEATS, VISIBILITIES } from "@/lib/types";
+import { DEFAULT_HOST_TERMS, DEFAULT_HOST_WAIVER, FEE_NOTICE } from "@/lib/legal";
+import { visibilityOptionLabel } from "@/lib/tier";
+import { FEE_CADENCE_LABELS, FEE_CADENCES, FORMATS, REPEATS, VISIBILITIES, type FeeCadence } from "@/lib/types";
 import { usePlay } from "@/lib/play-context";
 import { MatchmakerNotice } from "./MatchmakerNotice";
 
 export function HostForm() {
   const { user, repo, closeModal, showToast } = usePlay();
   const router = useRouter();
+  const [cadence, setCadence] = useState<FeeCadence>("free");
 
   async function onSubmit(formData: FormData) {
     if (!user) return;
     try {
-      const fee = String(formData.get("fee") ?? "").trim() || "Free";
+      const feeCadence = String(formData.get("feeCadence") ?? "free") as FeeCadence;
+      const feeLabel = String(formData.get("feeLabel") ?? "").trim();
+      const feeAmount = String(formData.get("feeAmount") ?? "").trim();
       const game = await repo.createGame(
         {
           title: String(formData.get("title") ?? "").trim(),
@@ -27,8 +32,11 @@ export function HostForm() {
           repeat: String(formData.get("repeat") ?? "Weekly") as (typeof REPEATS)[number],
           format: String(formData.get("fmt") ?? "7v7") as (typeof FORMATS)[number],
           spots: Number(formData.get("spots") ?? 10),
-          fee,
-          feePaidToHost: fee !== "Free",
+          fee: feeAmount || feeLabel || "Free",
+          feeCadence,
+          feeLabel,
+          feeAmount,
+          feePaidToHost: feeCadence !== "free",
           visibility: String(formData.get("visibility") ?? "public") as (typeof VISIBILITIES)[number],
           hostTerms: String(formData.get("hostTerms") ?? "").trim() || DEFAULT_HOST_TERMS,
           hostWaiver: String(formData.get("hostWaiver") ?? "").trim() || DEFAULT_HOST_WAIVER,
@@ -131,26 +139,54 @@ export function HostForm() {
             </select>
           </label>
         </div>
-        <div className="two">
-          <label htmlFor="f_spots">
-            Spots on the sheet
-            <input id="f_spots" name="spots" type="number" min={2} max={40} required defaultValue={10} />
+        <label htmlFor="f_spots">
+          Spots on the sheet
+          <input id="f_spots" name="spots" type="number" min={2} max={40} required defaultValue={10} />
+        </label>
+        <label htmlFor="f_cadence">
+          Participation fee
+          <select
+            id="f_cadence"
+            name="feeCadence"
+            value={cadence}
+            onChange={(event) => setCadence(event.target.value as FeeCadence)}
+          >
+            {FEE_CADENCES.map((item) => (
+              <option key={item} value={item}>
+                {FEE_CADENCE_LABELS[item]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label htmlFor="f_fee_label">
+          Custom fee label
+          <input
+            id="f_fee_label"
+            name="feeLabel"
+            type="text"
+            placeholder="e.g. Glen Kernan winter group"
+          />
+        </label>
+        {cadence !== "free" ? (
+          <label htmlFor="f_fee_amount">
+            {cadence === "donation" ? "Suggested amount" : "Amount"}
+            <input
+              id="f_fee_amount"
+              name="feeAmount"
+              type="text"
+              placeholder={cadence === "donation" ? "Pay what you can" : "$20"}
+            />
           </label>
-          <label htmlFor="f_fee">
-            Your fee
-            <input id="f_fee" name="fee" type="text" placeholder="Free or an amount" />
-          </label>
-        </div>
-        <p className="small muted">
-          If you charge a fee, it is paid directly to you for now. Maletas does not collect it in
-          this preview.
-        </p>
+        ) : null}
+        <p className="small muted">{FEE_NOTICE}</p>
         <label htmlFor="f_vis">
           Who can see and join
           <select id="f_vis" name="visibility" defaultValue="public">
-            <option value="public">Public — anyone can join</option>
-            <option value="vip">VIP only — Maletas VIP members</option>
-            <option value="invite">Invite only — you approve each player</option>
+            {VISIBILITIES.map((item) => (
+              <option key={item} value={item}>
+                {visibilityOptionLabel(item)}
+              </option>
+            ))}
           </select>
         </label>
         <label htmlFor="f_terms">

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { money } from "@/lib/format";
 import { MATCHMAKER_SHORT } from "@/lib/legal";
 import { usePlay } from "@/lib/play-context";
+import { displayFee } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { siteConfig, vipBenefits, waiverCopy } from "@/lib/site";
 import { HostForm } from "./HostForm";
 import { ProfileForm } from "./ProfileForm";
@@ -56,7 +58,7 @@ function ModalBody() {
   if (modal?.type === "vip") {
     return (
       <>
-        <h2>Maletas VIP</h2>
+        <h2>{TIER.productName}</h2>
         <p>
           <span className="price num">{siteConfig.vipMonthly}</span> a month, or{" "}
           <span className="price num">{siteConfig.vipYearly}</span> a year (save{" "}
@@ -78,7 +80,7 @@ function ModalBody() {
             onClick={async () => {
               await repo.setVip("monthly");
               closeModal();
-              showToast("VIP monthly is on in this demo");
+              showToast(`${TIER.name} monthly is on in this demo`);
             }}
           >
             $1.99 / month (demo)
@@ -89,7 +91,7 @@ function ModalBody() {
             onClick={async () => {
               await repo.setVip("yearly");
               closeModal();
-              showToast("VIP yearly is on in this demo");
+              showToast(`${TIER.name} yearly is on in this demo`);
             }}
           >
             $20 / year (demo)
@@ -170,7 +172,7 @@ function ModalBody() {
         <p>{game.hostWaiver}</p>
         {game.feePaidToHost ? (
           <p className="small muted">
-            Fee {game.fee}, paid directly to the host. Maletas does not collect it.
+            {displayFee(game)}. Fees are between host and player. Maletas does not collect this fee.
           </p>
         ) : null}
         <p className="small muted">

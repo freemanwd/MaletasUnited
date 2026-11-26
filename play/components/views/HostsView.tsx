@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { initials } from "@/lib/format";
+import { TIER } from "@/lib/tier";
 import { usePlay } from "@/lib/play-context";
 
 export function HostsView() {
@@ -18,13 +19,20 @@ export function HostsView() {
     <div className="wrap">
       <div className="row between">
         <h2>Hosts and fields</h2>
-        <button className="btn pitch" type="button" onClick={listField}>
-          List your field
-        </button>
+        <span className="row">
+          <Link className="btn" href="/hosts/vouchers">
+            Guest {TIER.name} vouchers
+          </Link>
+          <button className="btn pitch" type="button" onClick={listField}>
+            List your field
+          </button>
+        </span>
       </div>
       <p className="muted">
-        Maletas is a matchmaker, not a host. Each host sets visibility, their own fee (paid
-        directly to them for now), their own terms and waiver. You, not Maletas, run the field.
+        Maletas is a matchmaker, not a host. Each host names their own fee model (per game,
+        semester, session series, season, month, free or donation), visibility, terms and waiver.
+        Fees are between host and player. You, not Maletas, run the field. Any host can gift a
+        1-year {TIER.productName} voucher so a guest does not pay $1.99/month.
       </p>
       <div className="grid">
         {state.hosts.map((host) => {

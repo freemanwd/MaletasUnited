@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { repeatTag } from "@/lib/format";
+import { displayFee, repeatTag } from "@/lib/format";
+import { FEE_NOTICE } from "@/lib/legal";
+import { TIER } from "@/lib/tier";
 import type { Game } from "@/lib/types";
 import { usePlay } from "@/lib/play-context";
 import { canJoinGame, displayField, visibilityLabel } from "@/lib/visibility";
@@ -30,7 +32,7 @@ export function GameCard({
     if (requireUser()) return;
     if (access.reason === "vip") {
       openModal({ type: "vip" });
-      showToast("This game is for Maletas VIP members");
+      showToast(`This game is for ${TIER.productName} members`);
       return;
     }
     if (access.reason === "invite") {
@@ -75,11 +77,9 @@ export function GameCard({
         <span>
           Host: {game.hostName}
         </span>
-        <span>
-          {game.fee}
-          {game.feePaidToHost ? " · paid directly to host" : ""}
-        </span>
+        <span>{displayFee(game)}</span>
       </div>
+      <p className="small muted">{FEE_NOTICE}</p>
       <div
         className={`meter ${full ? "full" : ""}`}
         role="img"
@@ -113,7 +113,7 @@ export function GameCard({
                   : access.reason === "invite"
                     ? "Request a spot"
                     : access.reason === "vip"
-                      ? "VIP to join"
+                      ? `${TIER.name} to join`
                       : "Add my name"}
             </button>
           )}

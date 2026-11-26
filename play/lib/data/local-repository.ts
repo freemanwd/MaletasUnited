@@ -1,22 +1,27 @@
 import type { AuthAdapter } from "../auth/types";
 import {
+  displayFee,
   ensureHostRole,
   formatWhen,
   makeInviteCode,
+  makeVoucherCode,
   rolesFromLabel,
   shortName,
   uniqueHandle,
   zipPrefix,
 } from "../format";
+import { TIER, voucherQuote } from "../tier";
 import {
   MATCHMAKER_NOTICE_VERSION,
   WAIVER_VERSION,
   type AdminSnapshot,
+  type BuyVouchersInput,
   type CreateGameInput,
   type DirectoryPlayer,
   type ExternalListing,
   type Game,
   type GameFilters,
+  type MembershipVoucher,
   type PlayState,
   type ProfileInput,
   type SessionUser,
@@ -55,7 +60,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       );
     }
     const hide = Boolean(input.hideAddressUntilApproved);
-    const game: Game = {
+    const draft: Game = {
       id: `g-${Date.now()}`,
       title: input.title,
       hostId: host.id,
@@ -70,10 +75,15 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       weekday: formatted.weekday,
       kickoff: input.time,
       when: formatted.when,
+      timezone: "America/New_York",
+      nextDate: formatted.nextDate,
       repeat: input.repeat,
       spots: Math.max(2, Math.min(40, input.spots || 10)),
-      fee: input.fee || "Free",
-      feePaidToHost: Boolean(input.feePaidToHost) && (input.fee || "Free") !== "Free",
+      fee: input.fee || input.feeAmount || "Free",
+      feeCadence: input.feeCadence,
+      feeLabel: input.feeLabel,
+      feeAmount: input.feeAmount,
+      feePaidToHost: input.feeCadence !== "free",
       visibility: input.visibility,
       hostTerms: input.hostTerms,
       hostWaiver: input.hostWaiver,
@@ -84,6 +94,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       rosterIds: [host.id],
       sample: false,
     };
+    const game: Game = { ...draft, fee: displayFee(draft) };
     this.update((prev) => ({
       ...prev,
       games: [game, ...prev.games],
@@ -102,8 +113,10 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
           role: "Host",
           city: input.city,
           text: `New game: ${input.title} at ${input.field}, ${formatted.when}. The sign-up sheet is open.`,
+          imageDataUrl: "",
           likes: 0,
           liked: false,
+          comments: [],
           sample: false,
         },
         ...prev.posts,
@@ -127,7 +140,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     }
     const access = canJoinGame(current, user);
     if (!access.ok && access.reason !== "") {
-      if (access.reason === "vip") throw new Error("This game is for Maletas VIP members.");
+      if (access.reason === "vip") throw new Error(`This game is for ${TIER.productName} members.`);
       if (access.reason === "invite") throw new Error("This game is invite-only. Request a spot first.");
       if (access.reason === "pending") throw new Error("The host has not approved you yet.");
       if (access.reason === "full") throw new Error("That sheet is full.");
@@ -263,7 +276,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     return this.getState().posts;
   }
 
-  async createPost(text: string, user: SessionUser) {
+  async createPost(text: string, user: SessionUser, imageDataUrl = "") {
     const post = {
       id: `p-${Date.now()}`,
       authorId: user.id,
@@ -272,12 +285,42 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       role: user.roles.includes("host") ? ("Host" as const) : ("Player" as const),
       city: user.profile.city,
       text,
+      imageDataUrl,
       likes: 0,
       liked: false,
+      comments: [],
       sample: false,
     };
     this.update((prev) => ({ ...prev, posts: [post, ...prev.posts] }));
     return post;
+  }
+
+  async addComment(postId: string, text: string, user: SessionUser) {
+    const trimmed = text.trim();
+    if (!trimmed) return null;
+    let result = null;
+    this.update((prev) => ({
+      ...prev,
+      posts: prev.posts.map((post) => {
+        if (post.id !== postId) return post;
+        result = {
+          ...post,
+          comments: [
+            ...post.comments,
+            {
+              id: `c-${Date.now()}`,
+              authorId: user.id,
+              authorName: user.name,
+              authorHandle: user.profile.handle,
+              text: trimmed,
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        };
+        return result;
+      }),
+    }));
+    return result;
   }
 
   async toggleLike(postId: string) {
@@ -336,7 +379,13 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     this.update((prev) => ({
       ...prev,
       user: prev.user
-        ? { ...prev.user, vip: Boolean(plan), vipPlan: plan }
+        ? {
+            ...prev.user,
+            vip: Boolean(plan),
+            vipPlan: plan,
+            sponsoredBy: plan === "sponsored" ? prev.user.sponsoredBy : null,
+            sponsoredUntil: plan === "sponsored" ? prev.user.sponsoredUntil : null,
+          }
         : prev.user,
     }));
     return Boolean(plan);
@@ -383,6 +432,75 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       ...prev,
       pendingReferral: code ? code.trim().toUpperCase() : null,
     }));
+  }
+
+  async listVouchers() {
+    return this.getState().vouchers;
+  }
+
+  async buyVouchers(input: BuyVouchersInput, host: SessionUser): Promise<MembershipVoucher[]> {
+    const quote = voucherQuote(input.count);
+    const months = input.durationMonths || 12;
+    const game = input.gameId
+      ? this.getState().games.find((row) => row.id === input.gameId)
+      : null;
+    const batchId = `batch-${Date.now()}`;
+    const createdAt = new Date().toISOString();
+    const perCents = Math.round((quote.total / quote.count) * 100);
+    const created: MembershipVoucher[] = Array.from({ length: quote.count }, () => ({
+      id: `v-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      code: makeVoucherCode(),
+      batchId,
+      hostId: host.id,
+      hostName: host.name,
+      gameId: game?.id ?? null,
+      gameTitle: game?.title ?? null,
+      durationMonths: months,
+      createdAt,
+      paidCents: perCents,
+      redeemedById: null,
+      redeemedByName: null,
+      redeemedAt: null,
+      sponsoredUntil: null,
+    }));
+    this.update((prev) => ({ ...prev, vouchers: [...created, ...prev.vouchers] }));
+    return created;
+  }
+
+  async redeemVoucher(code: string, user: SessionUser): Promise<SessionUser> {
+    const key = code.trim().toUpperCase();
+    const row = this.getState().vouchers.find((item) => item.code.toUpperCase() === key);
+    if (!row) throw new Error("That voucher code was not found.");
+    if (row.redeemedById) throw new Error("That voucher has already been redeemed.");
+    const until = new Date();
+    until.setMonth(until.getMonth() + row.durationMonths);
+    const sponsoredUntil = until.toISOString();
+    let nextUser: SessionUser = user;
+    this.update((prev) => {
+      nextUser = {
+        ...user,
+        vip: true,
+        vipPlan: "sponsored",
+        sponsoredBy: row.hostName,
+        sponsoredUntil,
+      };
+      return {
+        ...prev,
+        user: prev.user?.id === user.id ? nextUser : prev.user,
+        vouchers: prev.vouchers.map((item) =>
+          item.id === row.id
+            ? {
+                ...item,
+                redeemedById: user.id,
+                redeemedByName: user.name,
+                redeemedAt: new Date().toISOString(),
+                sponsoredUntil,
+              }
+            : item,
+        ),
+      };
+    });
+    return nextUser;
   }
 
   async sendFriendRequest(fromId: string, toId: string) {
@@ -504,6 +622,8 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       roles: rolesFromLabel(input.rolesLabel),
       vip: false,
       vipPlan: null,
+      sponsoredBy: null,
+      sponsoredUntil: null,
       profile: {
         handle,
         city: input.city,
@@ -647,6 +767,15 @@ export function adminSnapshot(state: PlayState): AdminSnapshot {
     (sum, vendor) => sum + (vendor.gmv * vendor.rate) / 100,
     0,
   );
+  const extraVouchers = state.vouchers.filter((row) => !row.id.startsWith("v-gk-")).length;
+  const vouchersIssued = BASE_ADMIN.vouchersIssued + extraVouchers;
+  const extraRedeemed = state.vouchers.filter(
+    (row) => row.redeemedById && !row.id.startsWith("v-gk-"),
+  ).length;
+  const vouchersRedeemed = BASE_ADMIN.vouchersRedeemed + extraRedeemed;
+  const voucherRevenue =
+    (BASE_ADMIN.vouchersIssued * 20) / 12 +
+    state.vouchers.reduce((sum, row) => sum + row.paidCents, 0) / 100;
   const vipRevenue =
     user?.vipPlan === "yearly"
       ? (vipSubscribers - 1) * 1.99 + 20 / 12
@@ -657,6 +786,9 @@ export function adminSnapshot(state: PlayState): AdminSnapshot {
     inviteJoinRate: BASE_ADMIN.inviteJoinRate,
     vipSubscribers,
     vipRevenue,
+    vouchersIssued,
+    vouchersRedeemed,
+    voucherRevenue,
     shopCommission,
     weeksPlayers,
     weeksHosts,
