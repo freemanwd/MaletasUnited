@@ -10,7 +10,12 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";
 
-const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+// Prefer a direct (unpooled) connection for DDL; fall back to the pooled URL.
+const url =
+  process.env.DATABASE_URL_UNPOOLED ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL;
 const flag = (process.env.MALETAS_REAL_SIGNUP || "").toLowerCase();
 const isProd = process.env.VERCEL_ENV === "production";
 
@@ -63,7 +68,13 @@ try {
       ["jax-glen-kernan", h.email, h.label],
     );
   }
-  console.log(`[db-migrate] Seeded GK game and ${hosts.length} host email(s).`);
+  const { rows } = await pool.query(
+    `select (select count(*) from games where id = 'jax-glen-kernan')::int as games,
+            (select count(*) from game_hosts where game_id = 'jax-glen-kernan')::int as hosts`,
+  );
+  console.log(
+    `[db-migrate] Seed checked: ${hosts.length} host email(s) from env; database has GK game=${rows[0].games}, GK hosts=${rows[0].hosts}.`,
+  );
 } catch (err) {
   console.error("[db-migrate] Failed:", err);
   process.exitCode = 1;

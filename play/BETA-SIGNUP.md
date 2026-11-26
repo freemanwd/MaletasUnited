@@ -35,7 +35,7 @@ The flag is read at request time (`lib/beta/flag.ts`). Changing a Vercel env var
 
 | Name | Purpose |
 | --- | --- |
-| `DATABASE_URL` (or `POSTGRES_URL`) | Set by the Neon integration |
+| `DATABASE_URL` (or `POSTGRES_URL`) | Set by the Neon integration (app uses the pooled URL; migrations prefer `DATABASE_URL_UNPOOLED`) |
 | `AUTH_SECRET` | Random 32+ byte secret for Auth.js |
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Google OAuth client (optional if email is set) |
 | `EMAIL_SERVER`, `EMAIL_FROM` | SMTP for magic links, e.g. `smtps://user%40gmail.com:APP_PASSWORD@smtp.gmail.com:465` (optional if Google is set) |
