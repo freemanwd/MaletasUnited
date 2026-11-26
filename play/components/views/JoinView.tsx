@@ -19,8 +19,9 @@ export function JoinView({ code }: { code: string }) {
           Invite code <span className="code">{code}</span>
         </p>
         <p className="muted">
-          Create a free player card to put your name on Jacksonville sheets. Referral tracking in
-          this preview is stored in your browser only.
+          Demo: accounts coming soon. A player card created here is saved only on this device — it
+          is not a real account yet. For Saturday’s Glen Kernan game, the official sign-up is the
+          host’s Google Sheet on the game page.
         </p>
         {user ? (
           <p>

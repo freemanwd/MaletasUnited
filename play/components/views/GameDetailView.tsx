@@ -188,7 +188,9 @@ export function GameDetailView({ id }: { id: string }) {
       {game.sheetId ? null : <SignUpSheet game={game} myName={myName} />}
       <MatchmakerNotice variant="game" />
       <p className="small muted">
-        Adding your name asks you to accept this host’s waiver and the matchmaker notice.{" "}
+        {game.sheetId
+          ? "Use the official Google Sheet above to add your name. In-app Join / Sign up is a demo saved only on this device."
+          : "Adding your name here is a demo on this device only — it is not a real account yet. It also asks you to accept this host’s waiver and the matchmaker notice."}{" "}
         {SAMPLE_DISCLAIMER}
       </p>
     </div>

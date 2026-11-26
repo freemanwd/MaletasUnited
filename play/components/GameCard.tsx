@@ -80,6 +80,17 @@ export function GameCard({
         <span>{displayFee(game)}</span>
       </div>
       <p className="small muted">{FEE_NOTICE}</p>
+      {game.sheetId ? (
+        <div className="row between">
+          <span className="small muted">
+            Official sign-up is on the host’s Google Sheet.
+          </span>
+          <Link className="btn sm primary" href={`/games/${game.id}`}>
+            {game.sheetSignupLabel || "Sign-up sheet"}
+          </Link>
+        </div>
+      ) : (
+        <>
       <div
         className={`meter ${full ? "full" : ""}`}
         role="img"
@@ -120,6 +131,8 @@ export function GameCard({
         </span>
       </div>
       {showSheet ? <SignUpSheet game={game} myName={myName} /> : null}
+        </>
+      )}
     </article>
   );
 }
