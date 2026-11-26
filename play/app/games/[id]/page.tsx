@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { BetaRsvpSection } from "@/components/beta/BetaRsvpSection";
 import { GameDetailView } from "@/components/views/GameDetailView";
 import { SEED_GAMES } from "@/lib/data/seed";
 
@@ -24,5 +26,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GamePage({ params }: Props) {
   const { id } = await params;
-  return <GameDetailView id={id} />;
+  return (
+    <GameDetailView
+      id={id}
+      beta={
+        <Suspense fallback={null}>
+          <BetaRsvpSection gameId={id} />
+        </Suspense>
+      }
+    />
+  );
 }

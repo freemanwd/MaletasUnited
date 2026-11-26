@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { displayFee, repeatTag } from "@/lib/format";
 import { TIER } from "@/lib/tier";
 import { SAMPLE_DISCLAIMER } from "@/lib/data/seed";
@@ -12,7 +13,7 @@ import { MatchmakerNotice } from "../MatchmakerNotice";
 import { ShareButton } from "../ShareButton";
 import { SignUpSheet } from "../SignUpSheet";
 
-export function GameDetailView({ id }: { id: string }) {
+export function GameDetailView({ id, beta }: { id: string; beta?: ReactNode }) {
   const { ready, state, myName, isOnSheet, user, requireUser, openModal, repo, showToast } =
     usePlay();
   const game = state.games.find((item) => item.id === id);
@@ -158,6 +159,7 @@ export function GameDetailView({ id }: { id: string }) {
       </div>
         </>
       )}
+      {beta}
       {game.hostTerms ? (
         <div className="card">
           <h3>Host terms</h3>

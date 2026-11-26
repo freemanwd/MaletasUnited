@@ -6,6 +6,10 @@ Deploy on Vercel with **Root Directory = `play`**.
 
 Maletas is **only a matchmaker**. It collates soccer opportunities around the globe. It is not a nonprofit, not a host, not a field operator, and not an organizer. Each host, field and player works out terms, fees, liability and waivers among themselves. Legal copy in the app is a **draft pending attorney review**.
 
+## Real sign-up beta
+
+Real accounts (Auth.js), Neon Postgres (Drizzle) and database RSVPs exist behind a flag: on for preview deployments, off on production. See [BETA-SIGNUP.md](./BETA-SIGNUP.md). The localStorage demo below is unchanged and still powers the rest of the app.
+
 ## This version (v4 preview)
 
 No Clerk, Stripe, or database accounts exist yet. The UI talks only to a repository interface. Checkout, membership, vouchers, ads, reports and friend requests are labelled **demo**.

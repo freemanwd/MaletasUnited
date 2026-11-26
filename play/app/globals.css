@@ -1119,3 +1119,51 @@ ul.clean {
 .share-menu button:hover {
   background: var(--bg);
 }
+
+/* Real sign-up beta */
+.beta-card {
+  display: grid;
+  gap: 10px;
+}
+.beta-tools {
+  border-top: 1px solid var(--line, rgba(127, 127, 127, 0.25));
+  padding-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+.beta-tools summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.beta-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.beta-error {
+  color: #b42318;
+}
+.beta-card .sheet li .beta-entry {
+  width: auto;
+  flex: 1;
+  text-align: left;
+  color: var(--ink, inherit);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.beta-card .sheet li .beta-entry .tag {
+  width: auto;
+  text-align: left;
+  font-size: 10px;
+  padding: 1px 6px;
+}
+.beta-card .sheet li .beta-entry .tag.rec {
+  color: var(--pitch);
+}
+.beta-card .sheet li .beta-entry .tag.club {
+  color: var(--on-pitch);
+}
