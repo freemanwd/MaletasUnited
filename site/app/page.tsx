@@ -10,7 +10,7 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-20">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
-              Sunday mornings · Jacksonville, FL
+              Pickup soccer · Jacksonville, FL
             </p>
             <div className="mt-5 flex items-center gap-3">
               <Crest className="h-16 w-16 sm:h-20 sm:w-20" />
@@ -42,7 +42,7 @@ export default function HomePage() {
             </div>
             <ul className="mt-8 flex flex-wrap gap-2 text-sm">
               {[
-                "Sunday mornings",
+                "No fixed schedule",
                 "No entrance fees",
                 "Older gentlemen",
                 "Not a nonprofit",

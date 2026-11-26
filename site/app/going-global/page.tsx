@@ -41,7 +41,7 @@ export default function GoingGlobalPage() {
                 <p className="font-display text-2xl">Players</p>
                 <p className="mt-2 text-sm text-mist">
                   The spokes: older (and young-at-heart) players looking for a
-                  Sunday kickabout.
+                  pickup kickabout.
                 </p>
               </div>
             </div>

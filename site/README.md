@@ -1,6 +1,6 @@
 # Maletas United — marketing site
 
-Modern, mobile-first site for the Jacksonville Sunday-morning pickup soccer group.
+Modern, mobile-first site for the Jacksonville pickup soccer group.
 Copy and photos come from the current Google Sites page at [maleta.net](https://www.maleta.net).
 
 This app lives in `site/` so the existing GitHub Pages World Cup RSVP at the repo root (`index.html`, live at https://freemanwd.github.io/MaletasUnited/) stays untouched.

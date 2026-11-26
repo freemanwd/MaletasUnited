@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Maletas United — Where Soccer and Laughter Never Get Old. Sunday pickup soccer in Jacksonville, FL.";
+  "Maletas United — Where Soccer and Laughter Never Get Old. Pickup soccer in Jacksonville, FL.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -100,7 +100,7 @@ export default function OpenGraphImage() {
               color: "#dce6d8",
             }}
           >
-            <span>Sunday mornings</span>
+            <span>No fixed schedule</span>
             <span>·</span>
             <span>No entrance fees</span>
             <span>·</span>

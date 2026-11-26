@@ -16,8 +16,10 @@ export function SiteFooter() {
             </div>
           </div>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-mist">
-            Sunday-morning pickup soccer in Jacksonville, FL. Older gentlemen,
-            no entrance fees, not a nonprofit. The field address stays private.
+            Pickup soccer in Jacksonville, FL. Older gentlemen, no entrance
+            fees, not a nonprofit. Games have historically been weekends —
+            mostly Saturday mornings — plus some weeknights when there&apos;s
+            enough daylight. No fixed schedule. The field address stays private.
             Play at your own risk.
           </p>
         </div>
@@ -64,7 +66,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-mist/80 sm:px-6">
-        A rag-tag Sunday side in {siteConfig.location}. Letter from Freeman.
+        A rag-tag pickup side in {siteConfig.location}. Letter from Freeman.
       </div>
     </footer>
   );

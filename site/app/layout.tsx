@@ -21,7 +21,7 @@ const sourceSans = Source_Sans_3({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Maletas United | Sunday pickup soccer in Jacksonville, FL",
+    default: "Maletas United | Pickup soccer in Jacksonville, FL",
     template: "%s | Maletas United",
   },
   description: siteConfig.description,
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "Maletas United",
     "Jacksonville soccer",
     "pickup soccer",
-    "Sunday soccer",
+    "weekend pickup soccer",
     "Maleta Supreme",
   ],
   robots: {

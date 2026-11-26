@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InterestForm } from "@/components/InterestForm";
-import { moreInfoCopy } from "@/lib/content";
+import { moreInfoCopy, scheduleCopy } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -25,6 +25,9 @@ export default function JoinPage() {
         <p className="mt-5 text-lg leading-relaxed">{moreInfoCopy.play}</p>
 
         <ul className="mt-8 space-y-3 text-sm">
+          <li className="rounded-2xl bg-paper px-4 py-3 ring-1 ring-pitch/10">
+            {scheduleCopy} Email for the latest.
+          </li>
           <li className="rounded-2xl bg-paper px-4 py-3 ring-1 ring-pitch/10">
             The roster is limited. Email first — we cannot guarantee room.
           </li>

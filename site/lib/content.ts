@@ -15,7 +15,7 @@ export const homeLetter = {
     "Allow me to introduce the most unique squad on the soccer field: Maletas United. They’re not your typical nonprofit; in fact, they're not a nonprofit at all. Instead, they are a group of enthusiastic gentlemen proving that their love for soccer doesn't age, even if their birth certificates suggest otherwise.",
     'Maletas United is the epitome of the phrase "young at heart." From the winger who now considers a gentle jog as a sprint, to the goalkeeper whose idea of a "dive" is more of a cautious roll, each member brings their own special flair (and a hint of Ben Gay) to the game.',
     "Their mission? To keep the beautiful game alive, not just in their hearts but on the field, as they gracefully embrace the silver streaks in their hair (or the lack thereof). Soccer isn’t just a game for them; it’s a weekly escape into a world where the only thing that’s serious is the laughter after a missed goal.",
-    "Join us every Sunday morning where the Maletas United take to the field. No entrance fees, just an unwavering love for soccer and perhaps a willingness to occasionally play referee when discussions about the offside rule get too heated.",
+    "Join us when the Maletas United take to the field. Historically that's been weekend games, mostly Saturday mornings, plus some weeknight games when there's enough daylight — no fixed schedule. No entrance fees, just an unwavering love for soccer and perhaps a willingness to occasionally play referee when discussions about the offside rule get too heated.",
     "Come witness the magic of Maletas United - where every pass is a story, every goal a legend, and every match a victory against the ticking clock!",
   ],
   signOff: "Cheers to the Game We Love,",
@@ -30,6 +30,9 @@ export const historyCopy = {
   fields:
     "The original soccer field for the Maletas was not pretty and was originally off Emerson road in Jacksonville, FL near some train tracks. This rag-tag group of soccer players loved the game so much that they met played soccer there and ran into one of the O.G. Maletas Mr K Patel who later started hosting a game at his place at Jacksonville Golf and Country club for a while. However, that lasted only a little while before the Maletas starting playing at a nice playing field in Jacksonville, FL which is private. Since 2012, one of the hosts rekindled and super-selected a group of Maletas who still play. Over the last 2-3 years there is a rotation of hosts now at this playing field.",
 } as const;
+
+export const scheduleCopy =
+  "Games have historically been weekend pickup — mostly Saturday mornings — with some weeknight games when there's enough daylight. There's no fixed schedule.";
 
 export const moreInfoCopy = {
   title: "More Info.",

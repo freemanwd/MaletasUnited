@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/site";
 type Interest = "play" | "global" | "both";
 
 const interestLabels: Record<Interest, string> = {
-  play: "Playing on a Sunday morning",
+  play: "Playing in a pickup game",
   global: "The going-global app (hosts and players)",
   both: "Both — play locally and the future app",
 };
