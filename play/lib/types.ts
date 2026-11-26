@@ -148,6 +148,16 @@ export interface Game {
   roster: string[];
   rosterIds: string[];
   sample: boolean;
+  /** Kickoff-window length; defaults to 120 minutes. */
+  durationMinutes?: number;
+  lat?: number;
+  lon?: number;
+  /** Public Google Sheet id for an external sign-up list. */
+  sheetId?: string;
+  /** Tab gid for the sheet export; defaults to "0". */
+  sheetGid?: string;
+  /** Button label, e.g. "Sign up on the GK sheet". */
+  sheetSignupLabel?: string;
 }
 
 export interface Host {

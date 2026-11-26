@@ -16,6 +16,8 @@
   --chalk: rgba(242, 245, 236, 0.28);
   --ok: #1c7f4f;
   --warn: #a85f00;
+  --alert: #8a1f1f;
+  --on-alert: #fff8f6;
   --display: var(--font-display), "Arial Narrow", Impact, sans-serif;
   --body: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   --r: 10px;
@@ -37,6 +39,8 @@
     --chalk: rgba(238, 243, 232, 0.22);
     --ok: #4fd08f;
     --warn: #f0b04a;
+    --alert: #e07070;
+    --on-alert: #2a1010;
     color-scheme: dark;
   }
 }
@@ -987,4 +991,50 @@ ul.clean {
 }
 .composer h3 {
   margin-top: 0;
+}
+
+.weather-card {
+  gap: 8px;
+}
+.weather-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-weight: 600;
+}
+.weather-banner.ok {
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--line));
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+  color: var(--ink);
+}
+.weather-banner.caution {
+  border-color: color-mix(in srgb, var(--warn) 50%, var(--line));
+  background: color-mix(in srgb, var(--warn) 12%, var(--surface));
+  color: var(--ink);
+}
+.weather-banner.alert {
+  border-color: color-mix(in srgb, var(--alert) 55%, var(--line));
+  background: color-mix(in srgb, var(--alert) 12%, var(--surface));
+  color: var(--ink);
+}
+.weather-facts {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 14px;
+}
+.weather-source {
+  margin-bottom: 0;
+}
+.sheet-sync {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sheet-sync .sheet ol li .tag {
+  margin-left: 8px;
+}
+.sheet-sync .waitlist {
+  margin-top: 10px;
 }

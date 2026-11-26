@@ -14,7 +14,18 @@ export function loadState(): PlayState {
       ...seed,
       ...parsed,
       version: 3,
-      games: parsed.games?.length ? parsed.games : seed.games,
+      games: (parsed.games?.length ? parsed.games : seed.games).map((game) => {
+        const fromSeed = seed.games.find((row) => row.id === game.id);
+        return {
+          ...game,
+          lat: game.lat ?? fromSeed?.lat,
+          lon: game.lon ?? fromSeed?.lon,
+          durationMinutes: game.durationMinutes ?? fromSeed?.durationMinutes,
+          sheetId: game.sheetId ?? fromSeed?.sheetId,
+          sheetGid: game.sheetGid ?? fromSeed?.sheetGid,
+          sheetSignupLabel: game.sheetSignupLabel ?? fromSeed?.sheetSignupLabel,
+        };
+      }),
       posts: parsed.posts?.length
         ? parsed.posts.map((post) => ({
             ...post,
