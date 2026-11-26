@@ -6,6 +6,8 @@ import { TIER } from "@/lib/tier";
 import { SAMPLE_DISCLAIMER } from "@/lib/data/seed";
 import { usePlay } from "@/lib/play-context";
 import { canJoinGame, displayField, visibilityLabel } from "@/lib/visibility";
+import { GameSheetRoster } from "../GameSheetRoster";
+import { GameWeatherCard } from "../GameWeatherCard";
 import { MatchmakerNotice } from "../MatchmakerNotice";
 import { SignUpSheet } from "../SignUpSheet";
 
@@ -114,6 +116,11 @@ export function GameDetailView({ id }: { id: string }) {
         <span>{game.format}</span>
         <span>{displayFee(game)}</span>
       </div>
+      <GameWeatherCard game={game} />
+      {game.sheetId ? (
+        <GameSheetRoster game={game} />
+      ) : (
+        <>
       <div
         className={`meter ${full ? "full" : ""}`}
         role="img"
@@ -143,6 +150,8 @@ export function GameDetailView({ id }: { id: string }) {
           </button>
         )}
       </div>
+        </>
+      )}
       {game.hostTerms ? (
         <div className="card">
           <h3>Host terms</h3>
@@ -170,7 +179,7 @@ export function GameDetailView({ id }: { id: string }) {
           ))}
         </div>
       ) : null}
-      <SignUpSheet game={game} myName={myName} />
+      {game.sheetId ? null : <SignUpSheet game={game} myName={myName} />}
       <MatchmakerNotice variant="game" />
       <p className="small muted">
         Adding your name asks you to accept this host’s waiver and the matchmaker notice.{" "}
