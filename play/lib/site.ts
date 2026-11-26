@@ -5,6 +5,8 @@ export const siteConfig = {
   shortName: "Maletas",
   description:
     "Maletas is a matchmaker that collates soccer opportunities around the globe. Jacksonville, FL is the first hub.",
+  marketingSiteUrl:
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://maletas-united.vercel.app",
   clubMonthly: CLUB.monthly,
   clubYearly: CLUB.yearly,
   clubYearlyWas: CLUB.yearlyWas,

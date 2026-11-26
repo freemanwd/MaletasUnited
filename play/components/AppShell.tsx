@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { siteConfig } from "@/lib/site";
 import { TIER } from "@/lib/tier";
 import { usePlay } from "@/lib/play-context";
 import { currentTab, TabIcon, TABS } from "./Icons";
@@ -42,6 +43,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
           <span className="spacer" />
           <span className="row" style={{ flexWrap: "nowrap" }}>
+            <a className="btn sm" href={siteConfig.marketingSiteUrl}>
+              Website
+            </a>
             <ThemeToggle />
             <Link
               className="btn sm"
@@ -74,6 +78,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link href={TIER.path}>{TIER.name}</Link>
             {" · "}
             <Link href="/advertise">Advertise</Link>
+            {" · "}
+            <a href={siteConfig.marketingSiteUrl}>Maletas United website</a>
           </p>
         </div>
       </footer>
