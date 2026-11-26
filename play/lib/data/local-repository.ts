@@ -10,7 +10,7 @@ import {
   uniqueHandle,
   zipPrefix,
 } from "../format";
-import { TIER, voucherQuote } from "../tier";
+import { TIER, hostVoucherYearStats, voucherQuote } from "../tier";
 import {
   MATCHMAKER_NOTICE_VERSION,
   WAIVER_VERSION,
@@ -439,7 +439,16 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
   }
 
   async buyVouchers(input: BuyVouchersInput, host: SessionUser): Promise<MembershipVoucher[]> {
-    const quote = voucherQuote(input.count);
+    const stats = hostVoucherYearStats(this.getState().vouchers, host);
+    if (stats.remaining <= 0) {
+      throw new Error(
+        `You have used your ${stats.cap} Club vouchers for ${stats.year}. That cap is the default per host per year.`,
+      );
+    }
+    const quote = voucherQuote(input.count, stats.remaining);
+    if (quote.count < 1) {
+      throw new Error("Choose at least one voucher within your yearly cap.");
+    }
     const months = input.durationMonths || 12;
     const game = input.gameId
       ? this.getState().games.find((row) => row.id === input.gameId)

@@ -7,5 +7,5 @@ export default async function PlusRedirectPage({
 }) {
   const params = await searchParams;
   const voucher = typeof params.voucher === "string" ? params.voucher : "";
-  redirect(voucher ? `/vip?voucher=${encodeURIComponent(voucher)}` : "/vip");
+  redirect(voucher ? `/club?voucher=${encodeURIComponent(voucher)}` : "/club");
 }

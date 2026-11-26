@@ -19,7 +19,7 @@ import type {
 /**
  * Clearly labelled sample data. Jacksonville, FL is the first hub.
  * Other cities are example hubs — not real venues or partnerships.
- * Dave is the host of the sample Glen Kernan VIP group (requested).
+ * Dave is the host of the sample Glen Kernan Club group (requested).
  * Culhane's Irish Pub is named only as Maletas' 2026 World Cup watch-party
  * spot, not as an advertiser or shop partner.
  * Times: weekend games, mostly Saturday mornings, plus weeknight daylight. No Sundays.

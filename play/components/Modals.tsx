@@ -7,7 +7,7 @@ import { MATCHMAKER_SHORT } from "@/lib/legal";
 import { usePlay } from "@/lib/play-context";
 import { displayFee } from "@/lib/format";
 import { TIER } from "@/lib/tier";
-import { siteConfig, vipBenefits, waiverCopy } from "@/lib/site";
+import { clubBenefits, siteConfig, waiverCopy } from "@/lib/site";
 import { HostForm } from "./HostForm";
 import { ProfileForm } from "./ProfileForm";
 
@@ -55,17 +55,17 @@ function ModalBody() {
   if (modal?.type === "signup") return <ProfileForm />;
   if (modal?.type === "host") return <HostForm />;
 
-  if (modal?.type === "vip") {
+  if (modal?.type === "club") {
     return (
       <>
         <h2>{TIER.productName}</h2>
         <p>
-          <span className="price num">{siteConfig.vipMonthly}</span> a month, or{" "}
-          <span className="price num">{siteConfig.vipYearly}</span> a year (save{" "}
-          {siteConfig.vipYearlySave}).
+          <span className="price num">{siteConfig.clubMonthly}</span> a month, or{" "}
+          <span className="price num">{siteConfig.clubYearly}</span> a year (save{" "}
+          {siteConfig.clubYearlySave}).
         </p>
         <ul className="clean">
-          {vipBenefits.map((item) => (
+          {clubBenefits.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>

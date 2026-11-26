@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { TIER } from "@/lib/tier";
 
 export function AdvertiseView() {
   return (
@@ -22,7 +21,7 @@ export function AdvertiseView() {
           <p>
             Watch-party hosts for FIFA World Cup and pro league matches. Culhane&apos;s Irish Pub
             was Maletas&apos; 2026 World Cup spot — an example of the kind of local listing{" "}
-            {TIER.name} alerts can point at, not an ad sale.
+            Club alerts can point at, not an ad sale.
           </p>
         </article>
         <article className="card">
@@ -33,9 +32,10 @@ export function AdvertiseView() {
       <div className="card">
         <h3>How ads work in this preview</h3>
         <p>
-          Sponsor cards in the games list and clubhouse, plus one banner slot. {TIER.name} members
-          see fewer ads. Production options (direct local sponsorships, Google AdSense / Ad Manager,
-          affiliate programs) are listed in ARCHITECTURE.md.
+          Sponsor cards in the games list and clubhouse, plus one banner slot. Open Play sees ads.
+          Club members see light local sponsor units only. Production options (direct local
+          sponsorships, Google AdSense / Ad Manager, affiliate programs) are listed in
+          ARCHITECTURE.md.
         </p>
         <p className="small muted">No form is sent. This is sample copy for the matchmaker preview.</p>
         <button className="btn primary" type="button" disabled>

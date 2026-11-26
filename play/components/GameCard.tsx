@@ -31,7 +31,7 @@ export function GameCard({
   async function join() {
     if (requireUser()) return;
     if (access.reason === "vip") {
-      openModal({ type: "vip" });
+      openModal({ type: "club" });
       showToast(`This game is for ${TIER.productName} members`);
       return;
     }
@@ -56,7 +56,7 @@ export function GameCard({
         </span>
         <span className="row">
           {game.visibility !== "public" ? (
-            <span className={`tag ${game.visibility === "vip" ? "vip" : ""}`}>
+            <span className={`tag ${game.visibility === "vip" ? "club" : ""}`}>
               {visibilityLabel(game.visibility)}
             </span>
           ) : null}

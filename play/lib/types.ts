@@ -82,7 +82,8 @@ export interface PlayerProfile {
 /**
  * Session user shaped for a later Clerk swap.
  * `id` becomes the Clerk user id; `roles` maps to `publicMetadata.roles`.
- * `vip` maps to a Stripe Billing subscription (`TIER.productName` in lib/tier.ts).
+ * `vip` maps to a Stripe Billing Club subscription (`TIER.productName` in lib/tier.ts).
+ * A host-granted voucher still sets `vip` and shows a “VIP guest of <host>” badge.
  */
 export interface SessionUser {
   id: string;

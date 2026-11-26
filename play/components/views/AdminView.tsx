@@ -36,7 +36,7 @@ export function AdminView() {
       </div>
       <div className="banner">
         In production this view is limited to you and the admins you name, using roles in Clerk
-        (player, host, admin). Sign-ups, {TIER.name}, vouchers and commission below update as you
+        (player, host, admin). Sign-ups, Club, Host vouchers and commission below update as you
         use this preview.
         {!isAdmin ? (
           <>
@@ -65,7 +65,7 @@ export function AdminView() {
         </div>
         <div className="kpi">
           <b className="num">{snap.vipSubscribers}</b>
-          <span>{TIER.name} subscribers</span>
+          <span>{TIER.name} members</span>
         </div>
         <div className="kpi">
           <b className="num">{money(snap.vipRevenue)}</b>

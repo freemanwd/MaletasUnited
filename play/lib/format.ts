@@ -8,7 +8,7 @@ import type {
   Weekday,
 } from "./types";
 import { FEE_CADENCE_LABELS } from "./types";
-import { TIER } from "./tier";
+import { TIER, vipGuestLabel } from "./tier";
 
 export const GAME_TZ = "America/New_York";
 export const GAME_TZ_LABEL = "ET";
@@ -176,23 +176,30 @@ export function displayFee(game: Game): string {
   return parts.join(" · ");
 }
 
+export function isVipGuest(user: SessionUser | null | undefined): boolean {
+  return Boolean(user?.vip && user.sponsoredBy && user.sponsoredUntil);
+}
+
 export function membershipCaption(user: SessionUser | null): string | null {
   if (!user?.vip) return null;
-  if (user.sponsoredBy && user.sponsoredUntil) {
-    const until = new Date(user.sponsoredUntil);
-    const datePart = Number.isNaN(until.getTime())
-      ? user.sponsoredUntil
-      : until.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          timeZone: GAME_TZ,
-        });
-    return `Sponsored by ${user.sponsoredBy} until ${datePart}`;
+  if (isVipGuest(user) && user.sponsoredBy) {
+    return vipGuestLabel(user.sponsoredBy);
   }
   if (user.vipPlan === "yearly") return `${TIER.productName} · yearly`;
   if (user.vipPlan === "monthly") return `${TIER.productName} · monthly`;
   return TIER.productName;
+}
+
+export function membershipUntil(user: SessionUser | null): string | null {
+  if (!isVipGuest(user) || !user?.sponsoredUntil) return null;
+  const until = new Date(user.sponsoredUntil);
+  if (Number.isNaN(until.getTime())) return user.sponsoredUntil;
+  return until.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: GAME_TZ,
+  });
 }
 
 export function makeVoucherCode(): string {

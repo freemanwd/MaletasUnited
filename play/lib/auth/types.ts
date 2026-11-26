@@ -8,7 +8,7 @@ import type { ClerkRole, ProfileInput, SessionUser } from "../types";
  * - `email` → `user.primaryEmailAddress?.emailAddress`
  * - `imageUrl` → `user.imageUrl`
  * - `roles` → `user.publicMetadata.roles` as `ClerkRole[]`
- * - `vip` → Stripe Billing subscription (`TIER.productName` in `lib/tier.ts`) or `publicMetadata.vip`
+ * - `vip` → Stripe Billing Club subscription (`TIER.productName` in `lib/tier.ts`) or `publicMetadata.vip`. VIP in the UI is only a guest badge.
  *
  * Local demo: profiles live in localStorage. `signInWithClerk` is a no-op
  * placeholder so UI can call the same surface later.
@@ -26,7 +26,7 @@ export interface AuthAdapter {
 }
 
 export const CLERK_ROLE_DOC = {
-  player: "Can join sheets, post in the clubhouse, shop, and hold the paid membership tier.",
-  host: "Can publish games, set fee models, and buy guest membership vouchers.",
+  player: "Can join sheets, post in the clubhouse, shop, and hold Open Play or Club.",
+  host: "Can publish games, set fee models, and buy guest Club vouchers (25 per year). No monthly dues.",
   admin: "Can open /admin (counts, membership revenue, vouchers, vendor commission).",
 } as const;

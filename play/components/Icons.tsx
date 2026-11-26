@@ -50,6 +50,7 @@ export function currentTab(pathname: string): string {
     pathname.startsWith("/me") ||
     pathname.startsWith("/plus") ||
     pathname.startsWith("/vip") ||
+    pathname.startsWith("/club") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/join") ||
     pathname.startsWith("/players")

@@ -26,7 +26,7 @@ import { hashText, isVip } from "./visibility";
 export type ModalKind =
   | { type: "signup" }
   | { type: "host" }
-  | { type: "vip" }
+  | { type: "club" }
   | { type: "checkout" }
   | { type: "waiver"; gameId: string }
   | null;

@@ -1,24 +1,34 @@
-import { TIER } from "./tier";
+import { CLUB, TIER } from "./tier";
 
 export const siteConfig = {
   name: "Maletas Pickup Soccer",
   shortName: "Maletas",
   description:
     "Maletas is a matchmaker that collates soccer opportunities around the globe. Jacksonville, FL is the first hub.",
-  vipMonthly: "$1.99",
-  vipYearly: "$20",
-  vipYearlyWas: "$23.88",
-  vipYearlySave: "$3.88",
+  clubMonthly: CLUB.monthly,
+  clubYearly: CLUB.yearly,
+  clubYearlyWas: CLUB.yearlyWas,
+  clubYearlySave: CLUB.yearlySave,
+  /** @deprecated use clubMonthly */
+  vipMonthly: CLUB.monthly,
+  /** @deprecated use clubYearly */
+  vipYearly: CLUB.yearly,
+  vipYearlyWas: CLUB.yearlyWas,
+  vipYearlySave: CLUB.yearlySave,
   tier: TIER,
 } as const;
 
-export const vipBenefits = [
+export const clubBenefits = [
   "Access to private and invite-only hosted games",
   "Host email lists",
-  "Radius and geographic search alerts",
+  "Geo search alerts",
   "Match alerts when a sheet opens near you",
   "Watch-party alerts (pub viewings of FIFA World Cup and pro league matches)",
+  "Light local sponsor units only",
 ] as const;
+
+/** @deprecated use clubBenefits */
+export const vipBenefits = clubBenefits;
 
 export const waiverCopy = {
   title: "Host waiver and matchmaker notice",

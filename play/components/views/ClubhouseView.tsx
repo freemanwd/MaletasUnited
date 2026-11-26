@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { TIER } from "@/lib/tier";
 import { friendsOf, isBlocked } from "@/lib/visibility";
 import { usePlay } from "@/lib/play-context";
 import { AdSlot } from "../AdSlot";
@@ -144,9 +143,7 @@ export function ClubhouseView() {
             </button>
           </div>
           {feedAd && !user?.vip ? <AdSlot ad={feedAd} /> : null}
-          {user?.vip ? (
-            <p className="small muted">{TIER.name}: fewer ads in the clubhouse.</p>
-          ) : null}
+          {feedAd && user?.vip ? <AdSlot ad={feedAd} light /> : null}
         </aside>
       </div>
     </div>

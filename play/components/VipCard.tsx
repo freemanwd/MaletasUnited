@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePlay } from "@/lib/play-context";
 import { membershipCaption } from "@/lib/format";
-import { siteConfig, vipBenefits } from "@/lib/site";
+import { clubBenefits, siteConfig } from "@/lib/site";
 import { TIER } from "@/lib/tier";
 
 export function VipCard({ compact = false }: { compact?: boolean }) {
   const { vip, user, repo, showToast, openModal } = usePlay();
   const caption = membershipCaption(user);
+  const guest = user?.vipPlan === "sponsored";
 
   async function cancel() {
     await repo.setVip(null);
@@ -20,7 +21,7 @@ export function VipCard({ compact = false }: { compact?: boolean }) {
       <div className="row between">
         <h3>{TIER.productName}</h3>
         <span className="price num">
-          {siteConfig.vipMonthly}
+          {siteConfig.clubMonthly}
           <span className="small muted" style={{ fontFamily: "var(--body)" }}>
             {" "}
             / month
@@ -28,17 +29,18 @@ export function VipCard({ compact = false }: { compact?: boolean }) {
         </span>
       </div>
       <p className="small muted">
-        or {siteConfig.vipYearly} / year (save {siteConfig.vipYearlySave} vs {siteConfig.vipYearlyWas}).
+        or {siteConfig.clubYearly} / year (save {siteConfig.clubYearlySave} vs{" "}
+        {siteConfig.clubYearlyWas}).
       </p>
       <ul className="clean">
-        {vipBenefits.map((item) => (
+        {clubBenefits.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
       <p className="small muted">Demo: no card is taken and nothing is charged.</p>
       {vip ? (
         <div className="row between">
-          <span className="tag vip">{caption ?? "Active"}</span>
+          <span className={`tag ${guest ? "vip" : "club"}`}>{caption ?? "Active"}</span>
           <button className="btn sm" type="button" onClick={cancel}>
             Cancel
           </button>
@@ -48,7 +50,7 @@ export function VipCard({ compact = false }: { compact?: boolean }) {
           Start {TIER.name}
         </Link>
       ) : (
-        <button className="btn primary" type="button" onClick={() => openModal({ type: "vip" })}>
+        <button className="btn primary" type="button" onClick={() => openModal({ type: "club" })}>
           Start {TIER.name}
         </button>
       )}

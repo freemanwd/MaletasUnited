@@ -432,6 +432,11 @@ header.top .btn {
   border-color: var(--bib);
   color: var(--on-bib);
 }
+.tag.club {
+  background: var(--pitch);
+  border-color: var(--pitch);
+  color: var(--on-pitch);
+}
 .tag.web {
   border-color: var(--pitch);
   color: var(--pitch);
@@ -566,6 +571,21 @@ main .wrap {
   color: var(--pitch);
 }
 
+.compare {
+  display: grid;
+  gap: 14px;
+  margin: 12px 0 18px;
+}
+.compare .featured {
+  border-color: var(--pitch);
+  box-shadow: 0 0 0 1px var(--pitch);
+}
+@media (min-width: 760px) {
+  .compare {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+}
 .cols {
   display: grid;
   gap: 18px;

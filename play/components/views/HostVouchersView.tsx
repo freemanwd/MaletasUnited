@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { money } from "@/lib/format";
-import { TIER, VOUCHER_PRICING, voucherQuote } from "@/lib/tier";
+import { TIER, VOUCHER_PRICING, hostVoucherYearStats, voucherQuote } from "@/lib/tier";
 import { usePlay } from "@/lib/play-context";
 import { QrCode } from "../QrCode";
 
@@ -13,7 +13,14 @@ export function HostVouchersView() {
   const [months, setMonths] = useState<number>(VOUCHER_PRICING.defaultMonths);
   const [gameId, setGameId] = useState("");
   const [created, setCreated] = useState<string[]>([]);
-  const quote = voucherQuote(count);
+  const stats = useMemo(
+    () =>
+      user
+        ? hostVoucherYearStats(state.vouchers, user)
+        : { year: new Date().getFullYear(), used: 0, cap: VOUCHER_PRICING.yearlyCap, remaining: VOUCHER_PRICING.yearlyCap },
+    [state.vouchers, user],
+  );
+  const quote = voucherQuote(count, stats.remaining);
   const mine = useMemo(
     () =>
       state.vouchers.filter(
@@ -28,9 +35,11 @@ export function HostVouchersView() {
   if (!user) {
     return (
       <div className="wrap">
-        <h2>Host vouchers</h2>
+        <h2>Host Club vouchers</h2>
         <p className="muted">
-          Hosts can gift a 1-year {TIER.productName} membership so guests do not pay $1.99/month.
+          Hosts can gift a 1-year {TIER.productName} membership so guests do not pay {TIER.monthly}
+          /month. Guests then show as a VIP guest of the host. Default cap: {VOUCHER_PRICING.yearlyCap}{" "}
+          vouchers per host per year.
         </p>
         <button className="btn primary" type="button" onClick={() => requireUser()}>
           Join / Sign up as a host
@@ -42,8 +51,8 @@ export function HostVouchersView() {
   if (!hasRole("host") && hostGames.length === 0) {
     return (
       <div className="wrap">
-        <h2>Host vouchers</h2>
-        <p className="muted">Publish a game first, then you can buy guest vouchers.</p>
+        <h2>Host Club vouchers</h2>
+        <p className="muted">Publish a game first, then you can buy guest Club vouchers.</p>
         <Link className="btn pitch" href="/games/new">
           Host a game
         </Link>
@@ -53,16 +62,22 @@ export function HostVouchersView() {
 
   async function buy() {
     if (!user) return;
-    const rows = await repo.buyVouchers(
-      {
-        count: quote.count,
-        durationMonths: months,
-        gameId: gameId || null,
-      },
-      user,
-    );
-    setCreated(rows.map((row) => row.code));
-    showToast(`Demo checkout: ${money(quote.total)} for ${quote.count} voucher${quote.count === 1 ? "" : "s"}`);
+    try {
+      const rows = await repo.buyVouchers(
+        {
+          count: quote.count,
+          durationMonths: months,
+          gameId: gameId || null,
+        },
+        user,
+      );
+      setCreated(rows.map((row) => row.code));
+      showToast(
+        `Demo checkout: ${money(quote.total)} for ${quote.count} voucher${quote.count === 1 ? "" : "s"}`,
+      );
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Could not buy vouchers");
+    }
   }
 
   const origin = typeof window === "undefined" ? "https://play.maletas.com" : window.location.origin;
@@ -72,11 +87,19 @@ export function HostVouchersView() {
       <p className="small muted">
         <Link href="/hosts">Hosts</Link> / vouchers
       </p>
-      <h2>Guest membership vouchers</h2>
+      <h2>Guest Club vouchers</h2>
       <p className="muted">
-        Buy a 1-year {TIER.productName} voucher for a guest instead of them paying $1.99/month.
-        Demo Stripe stand-in: {money(VOUCHER_PRICING.unitPrice)} each, or {VOUCHER_PRICING.bulkCount}{" "}
-        for {money(VOUCHER_PRICING.bulkPrice)}.
+        Buy a 1-year {TIER.productName} voucher for a guest instead of them paying {TIER.monthly}
+        /month. They show as a VIP guest of you. Demo Stripe stand-in: {money(VOUCHER_PRICING.unitPrice)}{" "}
+        each, or {VOUCHER_PRICING.bulkCount} for {money(VOUCHER_PRICING.bulkPrice)}.
+      </p>
+      <p>
+        <strong>
+          {stats.used} of {stats.cap} used in {stats.year}
+        </strong>
+        {" · "}
+        {stats.remaining} remaining this year. Default cap is {VOUCHER_PRICING.yearlyCap} per host per
+        year.
       </p>
       <div className="cols">
         <form
@@ -93,9 +116,10 @@ export function HostVouchersView() {
               id="v_count"
               type="number"
               min={1}
-              max={50}
+              max={Math.max(1, stats.remaining)}
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
+              disabled={stats.remaining <= 0}
             />
           </label>
           <label htmlFor="v_months">
@@ -126,7 +150,7 @@ export function HostVouchersView() {
             {quote.bulk ? " · bulk price applied" : ""}
           </p>
           <p className="small muted">Demo: no card is taken. Production uses Stripe Checkout.</p>
-          <button className="btn primary" type="submit">
+          <button className="btn primary" type="submit" disabled={stats.remaining <= 0 || quote.count < 1}>
             Pay {money(quote.total)} (demo)
           </button>
         </form>
@@ -135,7 +159,7 @@ export function HostVouchersView() {
             <div className="card">
               <h3>New codes</h3>
               {created.map((code) => {
-                const url = `${origin}/vip?voucher=${code}`;
+                const url = `${origin}/club?voucher=${code}`;
                 return (
                   <div className="voucher-card" key={code}>
                     <QrCode value={url} size={140} />

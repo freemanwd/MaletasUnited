@@ -9,9 +9,9 @@ This is **not** the Maletas United marketing site (`site/`) and **not** the GitH
 - Next.js App Router, TypeScript, prototype design tokens (Big Shoulders Display, Instrument Sans, light/dark).
 - Data and auth live behind interfaces with a **localStorage** implementation (`maletas-play-v3`). No Clerk, Stripe, or database accounts yet.
 - Searching by city, ZIP and format is **free**. Membership, host vouchers and checkout are labelled **demo**.
-- The paid tier display name is configured in `lib/tier.ts` (currently VIP). Kick-off times show in ET.
+- Membership levels live in `lib/tier.ts`: **Open Play** (free), **Club** ($1.99/mo or $20/yr), **Host** (no monthly dues). VIP is a guest badge for a host-granted Club voucher. Kick-off times show in ET.
 - `robots` is `noindex`.
-- Seed data is generic and labelled sample, except Dave as host of the sample Glen Kernan VIP group. Game times: Saturday mornings plus weeknight games while there is daylight — not Sundays.
+- Seed data is generic and labelled sample, except Dave as host of the sample Glen Kernan Club group. Game times: Saturday mornings plus weeknight games while there is daylight — not Sundays.
 - Signing up for a game requires the host’s waiver plus a matchmaker notice. Legal copy is a draft pending attorney review.
 
 ```bash
@@ -39,8 +39,9 @@ npm run build
 | `/clubhouse` | Local feed (thought or photo, likes, comments) |
 | `/shop` | Matchmaker marketplace (affiliate + demo merch) |
 | `/shop/bag` | Bag (demo checkout) |
-| `/vip` | Paid membership (demo; name from `lib/tier.ts`) |
-| `/plus` | Redirects to `/vip` |
+| `/club` | Membership: Open Play / Club / Host comparison (demo) |
+| `/vip` | Redirects to `/club` |
+| `/plus` | Redirects to `/club` |
 | `/me` | Your player card |
 | `/players/[handle]` | Public player profile |
 | `/join/[code]` | Referral invite |

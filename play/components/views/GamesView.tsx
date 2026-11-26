@@ -77,8 +77,8 @@ export function GamesView() {
                 </button>
               </>
             ) : null}{" "}
-            Kick-off times are shown in {GAME_TZ_LABEL} (America/New_York). Private games and alerts
-            are{" "}
+            Kick-off times are shown in {GAME_TZ_LABEL} (America/New_York). Open Play is free.
+            Private games and alerts are{" "}
             <Link href={TIER.path}>
               <strong>{TIER.productName}</strong>
             </Link>
@@ -95,11 +95,7 @@ export function GamesView() {
       </section>
       <div className="wrap">
         {banner && !vip ? <AdSlot ad={banner} banner /> : null}
-        {vip && banner ? (
-          <p className="small muted">
-            {TIER.name}: fewer ads. Local sponsor banners are hidden on this view.
-          </p>
-        ) : null}
+        {vip && banner ? <AdSlot ad={banner} banner light /> : null}
         <div className="row between">
           <h2>Games this week</h2>
           <button className="btn pitch" type="button" onClick={host}>

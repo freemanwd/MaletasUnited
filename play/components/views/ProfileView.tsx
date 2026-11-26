@@ -71,7 +71,11 @@ export function ProfileView() {
               {user.profile.zip ? ` · ${user.profile.zip}` : ""}{" "}
               <span className="tag">{user.profile.privacy}</span>
             </div>
-            {vip ? <p className="tag vip">{membershipCaption(user) ?? TIER.name}</p> : null}
+            {vip ? (
+              <p className={`tag ${user.vipPlan === "sponsored" ? "vip" : "club"}`}>
+                {membershipCaption(user) ?? TIER.name}
+              </p>
+            ) : null}
             {user.profile.bio ? <p>{user.profile.bio}</p> : null}
             {user.profile.social ? (
               <a href={user.profile.social} rel="noopener noreferrer">
@@ -130,7 +134,7 @@ export function ProfileView() {
               ))}
               <div>
                 <Link className="btn sm pitch" href="/hosts/vouchers">
-                  Guest {TIER.name} vouchers
+                  Guest Club vouchers
                 </Link>
               </div>
             </div>

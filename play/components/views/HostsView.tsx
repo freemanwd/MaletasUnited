@@ -21,7 +21,7 @@ export function HostsView() {
         <h2>Hosts and fields</h2>
         <span className="row">
           <Link className="btn" href="/hosts/vouchers">
-            Guest {TIER.name} vouchers
+            Guest Club vouchers
           </Link>
           <button className="btn pitch" type="button" onClick={listField}>
             List your field
@@ -31,8 +31,10 @@ export function HostsView() {
       <p className="muted">
         Maletas is a matchmaker, not a host. Each host names their own fee model (per game,
         semester, session series, season, month, free or donation), visibility, terms and waiver.
-        Fees are between host and player. You, not Maletas, run the field. Any host can gift a
-        1-year {TIER.productName} voucher so a guest does not pay $1.99/month.
+        Fees are between host and player. Hosts pay no monthly dues. When money moves, Maletas
+        plans to take ~3% plus Stripe fees (demo / planned). You, not Maletas, run the field. Any
+        host can gift a 1-year {TIER.productName} voucher (25 per year) so a guest does not pay{" "}
+        {TIER.monthly}/month. That guest then shows as a VIP guest of the host.
       </p>
       <div className="grid">
         {state.hosts.map((host) => {
