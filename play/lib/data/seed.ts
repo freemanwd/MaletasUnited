@@ -590,6 +590,15 @@ const posts: Post[] = [
     liked: false,
     comments: [],
     sample: true,
+    workout: {
+      calories: 486,
+      steps: 6240,
+      distanceMiles: 4.2,
+      distanceUnit: "mi" as const,
+      activeMinutes: 52,
+      durationMinutes: 58,
+      source: "manual" as const,
+    },
   },
   {
     id: "post-d",
@@ -885,6 +894,7 @@ export const BASE_ADMIN: Omit<
 };
 
 export const SEED_GAMES = games;
+export const SEED_POSTS = posts;
 export const SEED_HOSTS = hosts;
 export const SEED_PRODUCTS = products;
 export const SEED_VENDORS = vendors;

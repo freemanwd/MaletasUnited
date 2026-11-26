@@ -9,6 +9,7 @@ import { canJoinGame, displayField, visibilityLabel } from "@/lib/visibility";
 import { GameSheetRoster } from "../GameSheetRoster";
 import { GameWeatherCard } from "../GameWeatherCard";
 import { MatchmakerNotice } from "../MatchmakerNotice";
+import { ShareButton } from "../ShareButton";
 import { SignUpSheet } from "../SignUpSheet";
 
 export function GameDetailView({ id }: { id: string }) {
@@ -81,6 +82,11 @@ export function GameDetailView({ id }: { id: string }) {
       <div className="row between">
         <h2>{game.title}</h2>
         <span className="row">
+          <ShareButton
+            title={game.title}
+            body={`${game.title} · ${game.when} · ${game.city}`}
+            path={`/games/${game.id}`}
+          />
           <span className={`tag ${game.repeat === "One-off" ? "" : "rec"}`}>
             {repeatTag(game.repeat)}
           </span>

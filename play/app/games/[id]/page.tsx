@@ -11,11 +11,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const game = SEED_GAMES.find((item) => item.id === id);
+  const title = game ? `${game.title} sign-up sheet` : "Game";
+  const description = game
+    ? `${game.title} · ${game.when} · ${game.city}. Play at your own risk.`
+    : "Pickup soccer sign-up sheet.";
   return {
-    title: game ? `${game.title} sign-up sheet` : "Game",
-    description: game
-      ? `${game.title} · ${game.when} · ${game.city}. Play at your own risk.`
-      : "Pickup soccer sign-up sheet.",
+    title,
+    description,
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

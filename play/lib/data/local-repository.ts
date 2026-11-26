@@ -27,6 +27,7 @@ import {
   type SessionUser,
   type VipPlan,
   type WaiverAck,
+  type WorkoutStats,
 } from "../types";
 import { canJoinGame, hashText } from "../visibility";
 import type { DataRepository } from "./repository";
@@ -276,7 +277,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
     return this.getState().posts;
   }
 
-  async createPost(text: string, user: SessionUser, imageDataUrl = "") {
+  async createPost(text: string, user: SessionUser, imageDataUrl = "", workout: WorkoutStats | null = null) {
     const post = {
       id: `p-${Date.now()}`,
       authorId: user.id,
@@ -290,6 +291,7 @@ export class LocalPlayStore implements DataRepository, AuthAdapter {
       liked: false,
       comments: [],
       sample: false,
+      ...(workout ? { workout } : {}),
     };
     this.update((prev) => ({ ...prev, posts: [post, ...prev.posts] }));
     return post;

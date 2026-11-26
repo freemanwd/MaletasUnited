@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { hasWorkoutStats, loadFitnessDraft, clearFitnessDraft, type WorkoutStats } from "@/lib/fitness";
 import { friendsOf, isBlocked } from "@/lib/visibility";
 import { usePlay } from "@/lib/play-context";
 import { AdSlot } from "../AdSlot";
 import { ClubhousePost } from "../ClubhousePost";
+import { WorkoutComposer } from "../WorkoutComposer";
 
 export function ClubhouseView() {
   const { state, user, repo, requireUser, showToast } = usePlay();
   const [tab, setTab] = useState<"near" | "friends">("near");
   const [preview, setPreview] = useState("");
+  const [workout, setWorkout] = useState<WorkoutStats | null>(() => loadFitnessDraft());
   const [composerKey, setComposerKey] = useState(0);
   const friendIds = user ? friendsOf(state, user.id) : [];
   const city = user?.profile.city ?? "Jacksonville";
@@ -31,8 +34,10 @@ export function ClubhouseView() {
       showToast("Write a thought or add a photo");
       return;
     }
-    await repo.createPost(text || "Photo", user, preview);
+    await repo.createPost(text || "Photo", user, preview, hasWorkoutStats(workout) ? workout : null);
     setPreview("");
+    setWorkout(null);
+    clearFitnessDraft();
     setComposerKey((n) => n + 1);
   }
 
@@ -109,6 +114,7 @@ export function ClubhouseView() {
               <img className="post-photo composer-photo" src={preview} alt="Selected" />
             ) : null}
             <p className="small muted">Photos stay in this browser as a demo data URL.</p>
+            <WorkoutComposer value={workout} onChange={setWorkout} showToast={showToast} />
             <div className="row between">
               <span className="small muted">
                 {user ? (
