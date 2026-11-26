@@ -32,7 +32,7 @@ Kick-off times are formatted in `America/New_York` with an **ET** label (`lib/fo
 | External listings | `ExternalListing` | Seed rows labelled “listed from the web” | Ingest by ZIP (Places, directories, partner feeds) — see below |
 | Shop | `Product.kind` `affiliate` \| `merch` | Outbound/affiliate links + demo merch bag | Affiliate network + Stripe Connect merch |
 | Ads | `Ad` + `/advertise` | Open Play sees full ads; Club sees light local sponsor units | Direct local IO, AdSense/Ad Manager, affiliates — see below |
-| Social | `DirectoryPlayer`, `Friendship`, `Post` (text + demo image data URL + comments) | Join CTA, `/signup`, Clubhouse composer, nav to own `/players/[handle]`, profile posts/photos/friends | Postgres graph; Clerk user id as player id; Blob for photos |
+| Social | `DirectoryPlayer`, `Friendship`, `Post` (text + optional `workout` stats + demo image data URL + comments) | Join CTA, `/signup`, Clubhouse composer, optional opt-in workout stats, Share button, nav to own `/players/[handle]`, `/p/[id]` permalinks | Postgres graph; Clerk user id as player id; Blob for photos; see fitness and share below |
 | Referrals | Invite code on the player card, `/join/[code]` | Count stored in `referralCounts` | Server-side attribution on Clerk sign-up |
 | Legal | `lib/legal.ts`, `/terms` | Draft notices on games, host flow, signup. `FEE_NOTICE`: fees are between host and player | Attorney-reviewed ToS; versioned acceptances |
 
@@ -250,6 +250,27 @@ Club alerts need geocoding (step 5) plus a subscriber table and a cron or queue 
 Replace `lib/legal.ts` after counsel signs off. Bump `MATCHMAKER_NOTICE_VERSION` and require re-acknowledgement. Keep the matchmaker positioning: Maletas is not liable for players, hosts or fields.
 
 ---
+
+
+### 13. Fitness tracker stats and social share
+
+Clubhouse posts can optionally include workout stats (calories, steps, miles or km, active minutes, duration). Players type the numbers in, or import a file **from their own device**. Parsing is **client-side only** (`lib/fitness/parse.ts`, plus a small FIT reader in `lib/fitness/fit.ts`). Supported exports today: **GPX, TCX, FIT, CSV, JSON** from apps such as Fitbit, Google Fit, Apple Health, Strava or Garmin. Limits: GPX usually has distance and time, not calories or steps; FIT support is best-effort for session/lap totals; multi-row CSVs and JSON history exports use a totals row when present, otherwise the most recent activity. Raw files are not uploaded. A draft may sit in `localStorage` (`maletas-play-fitness-draft`) until the player posts or clears it. Posted stats are stored on the `Post` (`workout`) and, in this demo, also only in `localStorage`. The composer is opt-in and shows a short privacy note. A compact stat strip renders on the post.
+
+Share is always user-confirmed. `ShareButton` calls `navigator.share` (Web Share API, with a photo `File` when `canShare({ files })` allows it) and otherwise offers X, Facebook, WhatsApp, LinkedIn, Reddit, email and copy link. Prefill includes a light “via Maletas Play” mention and a `https://maletas-play.vercel.app/...` link (`lib/share.ts`). There is **no auto-posting** into anyone’s social accounts.
+
+Dynamic Open Graph / Twitter images use `next/og` (`lib/og-card.tsx`) at `/games/[id]`, `/clubhouse` and `/p/[id]`. Seed posts get a unique card; player-authored posts that exist only in this browser fall back to a generic Clubhouse image, because crawlers cannot read `localStorage`.
+
+**Later direct-connect paths (not in this preview)**
+
+- **Fitbit Web API** — OAuth 2.0 on the web; request the minimum activity scopes; store refresh tokens server-side only after legal review.
+- **Strava OAuth** — works in a normal web app (`activity:read`); pull recent activities after the user connects.
+- **Google Fit / Garmin** — also have web OAuth APIs; treat them the same way (explicit connect, least privilege, revocable).
+- **Apple HealthKit** — not available to a website. A native iOS app or a wrapper (Capacitor, React Native, or a PWA that still ships a native HealthKit plugin) is required.
+- **Android Health Connect** — same constraint: a native or wrapped Android app, not a plain web page.
+
+**Privacy and HIPAA-adjacent cautions**
+
+Maletas is a soccer matchmaker, not a health-care provider, and this feature is not a medical record. Do not assume HIPAA applies, and do not assume it does not — get counsel before holding health or fitness data on a server, offering OAuth connections, or advertising health claims. Until then: keep imports on-device; do not upload GPX/FIT/CSV exports; minimize what a post stores (aggregates the player chose, not heart-rate streams or precise GPS traces); make sharing opt-in; let the player edit or omit numbers; do not sell or target ads from health data; and document retention when a real backend exists. Fitness numbers are not medical advice.
 
 ## What not to mix
 

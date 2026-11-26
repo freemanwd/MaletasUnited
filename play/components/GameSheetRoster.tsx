@@ -122,7 +122,8 @@ export function GameSheetRoster({ game }: { game: Game }) {
         {sheet
           ? `Synced from sheet · ${formatSynced(sheet.syncedAt)}`
           : "Synced from the host’s Google Sheet."}{" "}
-        Names only. The host or list keeper keeps the official list.
+        This Google Sheet is the official sign-up. Names only. The host or list keeper keeps the
+        list.
       </p>
     </div>
   );

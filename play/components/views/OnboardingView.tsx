@@ -44,6 +44,10 @@ export function OnboardingView({ nextPath }: { nextPath?: string }) {
     <div className="wrap">
       <h2>Join / Sign up</h2>
       <p className="muted">Create a free player profile. It takes two short steps.</p>
+      <p className="notice">
+        Demo: accounts coming soon. For now this profile is saved only on this device — it is not a
+        real account yet.
+      </p>
       <MatchmakerNotice variant="signup" />
       <div className="chips" role="group" aria-label="Onboarding steps">
         <span className="chip" aria-pressed={step === 1}>

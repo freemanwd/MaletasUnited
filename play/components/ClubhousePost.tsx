@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { initials } from "@/lib/format";
 import type { Post } from "@/lib/types";
+import { hasWorkoutStats } from "@/lib/fitness";
 import { usePlay } from "@/lib/play-context";
+import { ShareButton } from "./ShareButton";
+import { WorkoutStatStrip } from "./WorkoutStatStrip";
 
 export function ClubhousePost({ post }: { post: Post }) {
   const { user, repo, requireUser, showToast } = usePlay();
@@ -38,6 +41,7 @@ export function ClubhousePost({ post }: { post: Post }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="post-photo" src={post.imageDataUrl} alt="" />
       ) : null}
+      {hasWorkoutStats(post.workout) ? <WorkoutStatStrip stats={post.workout!} /> : null}
       <div className="row">
         <button
           className="btn sm"
@@ -47,6 +51,7 @@ export function ClubhousePost({ post }: { post: Post }) {
         >
           {post.liked ? "Liked" : "Like"} · <span className="num">{post.likes}</span>
         </button>
+        <ShareButton body={post.text} path={`/p/${post.id}`} imageDataUrl={post.imageDataUrl || undefined} />
         {user && post.authorId !== user.id ? (
           <button
             className="btn sm"

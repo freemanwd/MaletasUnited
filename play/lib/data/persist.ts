@@ -31,6 +31,7 @@ export function loadState(): PlayState {
             ...post,
             imageDataUrl: post.imageDataUrl ?? "",
             comments: post.comments ?? [],
+            workout: post.workout,
           }))
         : seed.posts,
       vendors: parsed.vendors?.length ? parsed.vendors : seed.vendors,

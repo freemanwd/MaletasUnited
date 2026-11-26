@@ -22,7 +22,7 @@ const body = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_PLAY_URL ?? "https://play.maletas.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_PLAY_URL ?? "https://maletas-play.vercel.app"),
   title: {
     default: siteConfig.name,
     template: `%s · ${siteConfig.shortName}`,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
   },

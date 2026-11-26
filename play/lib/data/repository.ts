@@ -13,6 +13,7 @@ import type {
   Product,
   SessionUser,
   Vendor,
+  WorkoutStats,
   VipPlan,
   WaiverAck,
 } from "../types";
@@ -40,7 +41,7 @@ export interface DataRepository {
   getPlayerByHandle(handle: string): Promise<DirectoryPlayer | null>;
 
   listPosts(): Promise<Post[]>;
-  createPost(text: string, user: SessionUser, imageDataUrl?: string): Promise<Post>;
+  createPost(text: string, user: SessionUser, imageDataUrl?: string, workout?: WorkoutStats | null): Promise<Post>;
   addComment(postId: string, text: string, user: SessionUser): Promise<Post | null>;
   toggleLike(postId: string): Promise<Post | null>;
   setNewsletter(subscribed: boolean): Promise<boolean>;

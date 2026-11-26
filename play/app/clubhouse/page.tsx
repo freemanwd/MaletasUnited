@@ -4,6 +4,11 @@ import { ClubhouseView } from "@/components/views/ClubhouseView";
 export const metadata: Metadata = {
   title: "Clubhouse",
   description: "Local pickup soccer feed for Jacksonville and example hubs.",
+  twitter: {
+    card: "summary_large_image",
+    title: "Clubhouse",
+    description: "Local pickup soccer feed for Jacksonville and example hubs.",
+  },
 };
 
 export default function ClubhousePage() {

@@ -1,5 +1,9 @@
 /** Shared domain types. Keep these UI-facing shapes stable when swapping storage. */
 
+import type { WorkoutStats } from "./fitness/types";
+
+export type { WorkoutStats } from "./fitness/types";
+
 export const CLERK_ROLES = ["player", "host", "admin"] as const;
 export type ClerkRole = (typeof CLERK_ROLES)[number];
 
@@ -185,6 +189,8 @@ export interface Post {
   liked: boolean;
   comments: PostComment[];
   sample: boolean;
+  /** Optional workout stats the author chose to attach. */
+  workout?: WorkoutStats;
 }
 
 export interface PostComment {

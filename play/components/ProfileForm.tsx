@@ -125,8 +125,8 @@ export function ProfileForm() {
           />
         </label>
         <p className="small muted">
-          Preview: your profile is saved in this browser only. Production signs people in with
-          Clerk and roles (player, host, admin). Public profiles live at /players/your-handle.
+          Demo: accounts coming soon. Your profile is saved only on this device for now — it is not
+          a real account yet. Public profiles live at /players/your-handle.
         </p>
         <div className="row">
           <button className="btn primary" type="submit">

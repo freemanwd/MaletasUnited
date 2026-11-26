@@ -9,6 +9,7 @@ import { canJoinGame, displayField, visibilityLabel } from "@/lib/visibility";
 import { GameSheetRoster } from "../GameSheetRoster";
 import { GameWeatherCard } from "../GameWeatherCard";
 import { MatchmakerNotice } from "../MatchmakerNotice";
+import { ShareButton } from "../ShareButton";
 import { SignUpSheet } from "../SignUpSheet";
 
 export function GameDetailView({ id }: { id: string }) {
@@ -81,6 +82,11 @@ export function GameDetailView({ id }: { id: string }) {
       <div className="row between">
         <h2>{game.title}</h2>
         <span className="row">
+          <ShareButton
+            title={game.title}
+            body={`${game.title} · ${game.when} · ${game.city}`}
+            path={`/games/${game.id}`}
+          />
           <span className={`tag ${game.repeat === "One-off" ? "" : "rec"}`}>
             {repeatTag(game.repeat)}
           </span>
@@ -182,7 +188,9 @@ export function GameDetailView({ id }: { id: string }) {
       {game.sheetId ? null : <SignUpSheet game={game} myName={myName} />}
       <MatchmakerNotice variant="game" />
       <p className="small muted">
-        Adding your name asks you to accept this host’s waiver and the matchmaker notice.{" "}
+        {game.sheetId
+          ? "Use the official Google Sheet above to add your name. In-app Join / Sign up is a demo saved only on this device."
+          : "Adding your name here is a demo on this device only — it is not a real account yet. It also asks you to accept this host’s waiver and the matchmaker notice."}{" "}
         {SAMPLE_DISCLAIMER}
       </p>
     </div>
